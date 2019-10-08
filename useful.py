@@ -12,6 +12,8 @@ import glob
 import numpy as np
 import sys
 from imblearn.over_sampling import RandomOverSampler
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import KFold
 
 def get_predictors(y0=2000,y1=None,luh_file='/disk/scratch/local.2/jexbraya/LUH2/states.nc',return_landmask = True):
 
@@ -116,18 +118,48 @@ def balance_training_data(X,y,n_bins=10,random_state=None):
     # bin data
     y = y[np.isfinite(y)]; X=X[np.isfinite(y)]
     ymin=np.min(y);ymax=np.max(y);yrange=ymax-ymin;width=yrange/n_bins
-    bins = np.arange(ymin,ymax,width)+width
+    bins = np.arange(ymin,ymax,width)
     label = np.zeros(y.size)
     for ii,margin in enumerate(bins):
-        label[y<margin]=ii
-
+        label[y>=margin]=ii
     # balance data
     if random_state is None:
         ros = RandomOverSampler()
     else:
         ros = RandomOverSampler(random_state=random_state)
-
-    idx=np.arange(0,y.size,dtype='int').reshape(y.size,1)
-    idx_resampled, y_resampled = ros.fit_resample(idx, y)
-    X_resampled=X[idx_resampled,:]
+    idx=np.arange(0,y.size,dtype='int')
+    idx_resampled,label_resampled = ros.fit_resample(idx.reshape(y.size,1),label)
+    X_resampled=X[idx_resampled.reshape(idx_resampled.size),:]
+    y_resampled=y[idx_resampled.reshape(idx_resampled.size)]
     return X_resampled, y_resampled
+
+
+"""
+balanced_cv
+----------------------
+Need a cross validation procedure for balanced trees that maintains the
+independence of train and test sets between folds.
+
+"""
+def balanced_cv(params,X,y,cv=3,random_state=None):
+    # create RandomForestRegressor object
+    rf = RandomForestRegressor(**params)
+    # create Kfold object
+    kf = KFold(n_splits=cv,shuffle=True,random_state=random_state)
+    ii=0
+    scores = np.zeros(cv)
+    # loop through the folds
+    for train_index, test_index in kf.split(X):
+        # obtain train-test split
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        # balance training set for fold
+        X_resampled,y_resampled = balance_training_data(X,y,n_bins=10,random_state=random_state+ii)
+        # fit random forest model for fold
+        rf.fit(X_resampled,y_resampled)
+        # get prediction for test set
+        y_rf = rf.predict(X_test)
+        # calculate rmse
+        scores[ii]=np.sqrt(np.mean((y_test-y_rf)**2))
+        ii+=1
+    return scores
