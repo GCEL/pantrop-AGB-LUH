@@ -49,4 +49,4 @@ rf_random = RandomizedSearchCV(estimator=rf,param_distributions=random_grid,cv=3
 rf_random.fit(X_train_resampled,y_train_resampled)
 
 #save the fitted rf_random
-joblib.dump(rf_random,'/disk/scratch/local.2/jexbraya/pantrop-AGB-LUH/saved_algorithms/rf_random.pkl')
+joblib.dump(rf_random,'/disk/scratch/local.2/dmilodow/pantrop-AGB-LUH/saved_algorithms/rf_random.pkl')
