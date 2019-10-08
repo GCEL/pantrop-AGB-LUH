@@ -11,7 +11,7 @@ from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, train_test
 from sklearn.metrics import mean_squared_error
 from sklearn.externals import joblib
 
-pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop-AGB-LUH/saved_algorithms/pca_pipeline.pkl')
+pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/pca_pipeline.pkl')
 
 predictors,landmask = get_predictors(y0=2000,y1=2009)
 
@@ -49,4 +49,4 @@ rf_random = RandomizedSearchCV(estimator=rf,param_distributions=random_grid,cv=3
 rf_random.fit(X_train_resampled,y_train_resampled)
 
 #save the fitted rf_random
-joblib.dump(rf_random,'/disk/scratch/local.2/dmilodow/pantrop-AGB-LUH/saved_algorithms/rf_random.pkl')
+joblib.dump(rf_random,'/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_random.pkl')
