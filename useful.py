@@ -119,7 +119,7 @@ def balance_training_data(X,y,n_bins=10,random_state=None):
     bins = np.arange(ymin,ymax,width)+width
     label = np.zeros(y.size)
     for ii,margin in enumerate(bins):
-        label[y<margin]=label
+        label[y<margin]=ii
 
     # balance data
     if random_state is None:
