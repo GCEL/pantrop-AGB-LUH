@@ -129,5 +129,5 @@ def balance_training_data(X,y,n_bins=10,random_state=None):
 
     idx=np.arange(0,y.size,dtype='int').reshape(y.size,1)
     idx_resampled, y_resampled = ros.fit_resample(idx, y)
-    X_resampled=np.take(X,idx_resampled,:)
+    X_resampled=X[idx_resampled,:]
     return X_resampled, y_resampled
