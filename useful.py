@@ -2,12 +2,16 @@
 12/11/2018 - JFE
 This file contains the definition of some useful functions
 for the pantrop-AGB-LUH work
+
+08/10/2019 - DTM
+Added new method for balancing training data prior to model fitting.
 """
 
 import xarray as xr #xarray to read all types of formats
 import glob
 import numpy as np
 import sys
+from imblearn.over_sampling import RandomOverSampler
 
 def get_predictors(y0=2000,y1=None,luh_file='/disk/scratch/local.2/jexbraya/LUH2/states.nc',return_landmask = True):
 
@@ -100,3 +104,30 @@ def get_areas():
         areas[la]= (6371e3)**2 * ( np.deg2rad(0+res/2.)-np.deg2rad(0-res/2.) ) * (np.sin(np.deg2rad(latval+res/2.))-np.sin(np.deg2rad(latval-res/2.)))
 
     return areas
+
+"""
+balance_training_data
+-----------------------
+Balance training data for random forest regression by binning y into evenly
+spaced bins (n=n_bins; default 10) then using naive random upsampling from
+imbalanced learn
+"""
+def balance_training_data(X,y,n_bins=10,random_state=None):
+    # bin data
+    y = y[np.isfinite(y)]; X=X[np.isfinite(y)]
+    ymin=np.min(y);ymax=np.max(y);yrange=ymax-ymin;width=yrange/n_bins
+    bins = np.arange(ymin,ymax,width)+width
+    label = np.zeros(y.size)
+    for ii,margin in enumerate(bins):
+        label[y<margin]=label
+
+    # balance data
+    if random_state is None:
+        ros = RandomOverSampler()
+    else:
+        ros = RandomOverSampler(random_state=random_state)
+
+    idx=np.arange(0,y.size,dtype='int').reshape(y.size,1)
+    idx_resampled, y_resampled = ros.fit_resample(idx, y)
+    X_resampled=np.take(X,idx_resampled,:)
+    return X_resampled, y_resampled
