@@ -114,21 +114,36 @@ Balance training data for random forest regression by binning y into evenly
 spaced bins (n=n_bins; default 10) then using naive random upsampling from
 imbalanced learn
 """
-def balance_training_data(X,y,n_bins=10,random_state=None):
+def balance_training_data(X,y,n_bins=10,target=None,random_state=None):
     # bin data
     y = y[np.isfinite(y)]; X=X[np.isfinite(y)]
     ymin=np.min(y);ymax=np.max(y);yrange=ymax-ymin;width=yrange/n_bins
     bins = np.arange(ymin,ymax,width)
-    label = np.zeros(y.size)
+    label = np.zeros(y.size).astype('str')
     for ii,margin in enumerate(bins):
-        label[y>=margin]=ii
+        label[y>=margin]=str(ii)
+    labels,counts = np.unique(label,return_counts=True)
     # balance data
-    if random_state is None:
-        ros = RandomOverSampler()
-    else:
-        ros = RandomOverSampler(random_state=random_state)
     idx=np.arange(0,y.size,dtype='int')
+    if target is None:
+        if random_state is None:
+            ros = RandomOverSampler()
+        else:
+            ros = RandomOverSampler(random_state=random_state)
+    else:
+        target_dict = {}
+        for ll, lab in enumerate(labels):
+            if counts[ll]<target:
+                target_dict[lab]=target
+            else:
+                target_dict[lab]=counts[ll]
+        if random_state is None:
+            ros = RandomOverSampler(sampling_strategy=target_dict)
+        else:
+            ros = RandomOverSampler(sampling_strategy=target_dict,random_state=random_state)
+
     idx_resampled,label_resampled = ros.fit_resample(idx.reshape(y.size,1),label)
+    # Apply resampling index
     X_resampled=X[idx_resampled.reshape(idx_resampled.size),:]
     y_resampled=y[idx_resampled.reshape(idx_resampled.size)]
     return X_resampled, y_resampled
