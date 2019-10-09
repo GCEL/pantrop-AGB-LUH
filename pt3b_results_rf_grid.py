@@ -12,18 +12,33 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 #load the fitted rf_grid
-rf_grid = joblib.load('/disk/scratch/local.2/jexbraya/pantrop-AGB-LUH/saved_algorithms/rf_grid.pkl')
+rf_grid = np.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/s_AGB_potential_RFR_worldclim_soilgrids.npy')[()]
 
 # create a pandas dataframe storing parameters and results of the cv
-cv_res = pd.DataFrame(rf_grid.cv_results_['params'])
+#cv_res = pd.DataFrame(rf_grid.cv_results_['params'])
+cv_res = pd.DataFrame(rf_grid.['params'])
 params = cv_res.columns #save parameter names for later
 #get the scores as RMSE
-cv_res['mean_train_score'] = .5*(-rf_grid.cv_results_['mean_train_score'])**.5
-cv_res['mean_test_score'] = .5*(-rf_grid.cv_results_['mean_test_score'])**.5
+#cv_res['mean_train_score'] = .5*(-rf_grid.cv_results_['mean_train_score'])**.5
+#cv_res['mean_test_score'] = .5*(-rf_grid.cv_results_['mean_test_score'])**.5
+cv_res['mean_train_score'] = rf_grid['mean_train_score']
+cv_res['mean_test_score'] = rf_grid['mean_test_score']
 cv_res['ratio_score'] = cv_res['mean_test_score'] / cv_res['mean_train_score']
 
+# Construct best-fitting random forest model
+idx = np.argmin(cv_res['mean_test_score'])
+rf_best = RandomForestRegressor(bootstrap=cv_res['bootstrap'][idx],
+            max_depth= cv_res['max_depth'][idx],
+            max_features=cv_res['max_features'][idx],
+            min_samples_leaf=cv_res['min_samples_leaf'][idx],
+            n_estimators=cv_res['n_estimators'][idx],
+            n_jobs=30,
+            oob_score=True,
+            random_state=26,
+            )
+
 #do some plots
-pca = joblib.load('/disk/scratch/local.2/jexbraya/pantrop-AGB-LUH/saved_algorithms/pca_pipeline.pkl')
+pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop-AGB-LUH/saved_algorithms/pca_pipeline.pkl')
 predictors,landmask = get_predictors(y0=2000,y1=2009)
 
 #transform the data
@@ -34,10 +49,10 @@ y = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Map_0.25d.
 X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.25, random_state=26)
 
 #create some pandas df
-df_train = pd.DataFrame({'obs':y_train,'sim':rf_grid.best_estimator_.predict(X_train)})
+df_train = pd.DataFrame({'obs':y_train,'sim':rf_best.predict(X_train)})
 df_train.sim[df_train.sim<0] = 0.
 
-df_test =  pd.DataFrame({'obs':y_test,'sim':rf_grid.best_estimator_.predict(X_test)})
+df_test =  pd.DataFrame({'obs':y_test,'sim':rf_best.predict(X_test)})
 df_test.sim[df_test.sim<0] = 0.
 #plot
 sns.set()
