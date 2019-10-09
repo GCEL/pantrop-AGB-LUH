@@ -29,7 +29,7 @@ X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.25, random
 param_grid = { "max_features": np.linspace(.35,.7,8), "min_samples_leaf": np.linspace(1,10,10,dtype='i')}
 
 #create the random forest object with predefined parameters
-rf = RandomForestRegressor(n_jobs=20,random_state=26,
+rf = RandomForestRegressor(n_jobs=30,random_state=26,
                             n_estimators = 1000,bootstrap=True)
 
 fold=3
@@ -38,21 +38,20 @@ GridSearchResults['params']=[]
 GridSearchResults['scores']=[]
 GridSearchResults['mean_scores']=[]
 best_score = np.inf
-for ii in range(0,n_iter):
-    print('{0}\r'.format(ii),end='\r')
-    params={}
-    for pp,param in enumerate(random_grid.keys()):
-        params[param] = np.random.choice(random_grid[param])
-    params['n_jobs'] = 30
-    GridSearchResults['params'].append(params)
-    scores = balanced_cv(params,X_train,y_train,cv=fold,target=12600,random_state=2097)
-    GridSearchResults['scores'].append(scores)
-    GridSearchResults['mean_scores'].append(np.mean(scores))
-    if GridSearchResults['mean_scores'][ii]<best_score:
-        best_score = GridSearchResults['mean_scores'][ii]
-        print('\tNew Best RMSE: %.06f' % (best_score))
-        print(params)
-        print('\n')
+for ii,p1 in param_grid['max_features']:
+    for jj,p2 in param_grid['min_samples_leaf']:
+        print('{0}%\r'.format(float(ii)/float((ii*jj))*100),end='\r')
+        params={'max_features':p1,'min_samples_leaf':p2}
+        GridSearchResults['params'].append(params)
+        # run balanced cross validation
+        scores = balanced_cv(params,X_train,y_train,cv=fold,target=12600,random_state=2097)
+        GridSearchResults['scores'].append(scores)
+        GridSearchResults['mean_scores'].append(np.mean(scores))
+        if GridSearchResults['mean_scores'][ii]<best_score:
+            best_score = GridSearchResults['mean_scores'][ii]
+            print('\tNew Best RMSE: %.06f' % (best_score))
+            print(params)
+            print('\n')
 
 np.savez(GridSearchResults,'/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_grid.npy')
 
