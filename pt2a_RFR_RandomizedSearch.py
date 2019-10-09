@@ -48,7 +48,8 @@ fold=3
 RandomizedSearchResults = {}
 RandomizedSearchResults['params']=[]
 RandomizedSearchResults['scores']=[]
-RandomizedSearchResults['mean_scores']=[]
+RandomizedSearchResults['mean_train_score']=[]
+RandomizedSearchResults['mean_test_score']=[]
 best_score = np.inf
 for ii in range(0,n_iter):
     print('{0}\r'.format(ii),end='\r')
@@ -59,12 +60,12 @@ for ii in range(0,n_iter):
     RandomizedSearchResults['params'].append(params)
     scores = balanced_cv(params,X_train,y_train,cv=fold,target=12600,random_state=2097)
     RandomizedSearchResults['scores'].append(scores)
-    RandomizedSearchResults['mean_scores'].append(np.mean(scores))
-    if RandomizedSearchResults['mean_scores'][ii]<best_score:
-        best_score = RandomizedSearchResults['mean_scores'][ii]
+    RandomizedSearchResults['mean_test_score'].append(np.mean(scores['test']))
+    RandomizedSearchResults['mean_train_score'].append(np.mean(scores['train']))
+    if RandomizedSearchResults['mean_test_score'][ii]<best_score:
+        best_score = RandomizedSearchResults['mean_test_score'][ii]
         print('\tNew Best RMSE: %.06f' % (best_score))
         print(params)
-        print('\n')
 
 np.savez(RandomizedSearchResults,'/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_random.npy')
 

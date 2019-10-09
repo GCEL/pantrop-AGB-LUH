@@ -162,7 +162,7 @@ def balanced_cv(params,X,y,cv=3,target=None,random_state=None):
     # create Kfold object
     kf = KFold(n_splits=cv,shuffle=True,random_state=random_state)
     ii=0
-    scores = np.zeros(cv)
+    scores = {'test':np.zeros(cv),'train':np.zeros(cv)}
     # loop through the folds
     for train_index, test_index in kf.split(X):
         # obtain train-test split
@@ -173,8 +173,10 @@ def balanced_cv(params,X,y,cv=3,target=None,random_state=None):
         # fit random forest model for fold
         rf.fit(X_resampled,y_resampled)
         # get prediction for test set
-        y_rf = rf.predict(X_test)
+        y_rf_train = rf.predict(X_train)
+        y_rf_test = rf.predict(X_test)
         # calculate rmse
-        scores[ii]=np.sqrt(np.mean((y_test-y_rf)**2))
+        scores['train'][ii]=np.sqrt(np.mean((y_train-y_rf_train)**2))
+        scores['test'][ii]=np.sqrt(np.mean((y_test-y_rf_test)**2))
         ii+=1
     return scores
