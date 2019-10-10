@@ -67,7 +67,7 @@ for ii in range(0,n_iter):
         print('\tNew Best RMSE: %.06f' % (best_score))
         print(params)
 
-np.savez(RandomizedSearchResults,'/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_random.npy')
+np.savez('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_random.npy',RandomizedSearchResults)
 
 """
 # commented out previous iteration of the randomized search

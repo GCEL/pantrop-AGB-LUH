@@ -36,7 +36,8 @@ fold=3
 GridSearchResults = {}
 GridSearchResults['params']=[]
 GridSearchResults['scores']=[]
-GridSearchResults['mean_scores']=[]
+GridSearchResults['mean_train_score']=[]
+GridSearchResults['mean_test_score']=[]
 best_score = np.inf
 for ii,p1 in param_grid['max_features']:
     for jj,p2 in param_grid['min_samples_leaf']:
@@ -46,14 +47,15 @@ for ii,p1 in param_grid['max_features']:
         # run balanced cross validation
         scores = balanced_cv(params,X_train,y_train,cv=fold,target=12600,random_state=2097)
         GridSearchResults['scores'].append(scores)
+        GridSearchResults['mean_test_score'].append(np.mean(scores['test']))
+        GridSearchResults['mean_train_score'].append(np.mean(scores['train']))
         GridSearchResults['mean_scores'].append(np.mean(scores))
-        if GridSearchResults['mean_scores'][ii]<best_score:
-            best_score = GridSearchResults['mean_scores'][ii]
+        if GridSearchResults['mean_test_score'][ii]<best_score:
+            best_score = GridSearchResults['mean_test_score'][ii]
             print('\tNew Best RMSE: %.06f' % (best_score))
             print(params)
-            print('\n')
 
-np.savez(GridSearchResults,'/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_grid.npy')
+np.savez('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_grid.npy',GridSearchResults)
 
 """
 #perform a grid search on hyper parameters using training subset of data
