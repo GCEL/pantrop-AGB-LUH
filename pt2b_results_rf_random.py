@@ -22,7 +22,6 @@ params = cv_res.columns #save parameter names for later
 #get the scores
 #cv_res['mean_train_score'] = .5*(-rf_random.cv_results_['mean_train_score'])**.5
 #cv_res['mean_test_score'] = .5*(-rf_random.cv_results_['mean_test_score'])**.5
-#cv_res['ratio_score'] = cv_res['mean_test_score'] / cv_res['mean_train_score']
 cv_res['mean_train_score'] = rf_random['mean_train_score']
 cv_res['mean_test_score'] = rf_random['mean_test_score']
 cv_res['ratio_score'] = cv_res['mean_test_score'] / cv_res['mean_train_score']
