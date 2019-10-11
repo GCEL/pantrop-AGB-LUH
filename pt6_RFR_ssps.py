@@ -27,7 +27,7 @@ lon = np.arange(-180+0.125,180,0.25)
 #get areas
 areas = get_areas()
 
-luh_files = sorted(glob.glob('/disk/scratch/local.2/jdmilodow/LUH2/*ssp*'))
+luh_files = sorted(glob.glob('/disk/scratch/local.2/jexbraya/LUH2/*ssp*'))
 for luh_file in luh_files:
     ssp = luh_file.split('-')[-5]
     print(luh_file,ssp)
