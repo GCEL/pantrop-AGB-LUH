@@ -12,7 +12,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 #load the fitted rf_grid
-rf_grid = np.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/s_AGB_potential_RFR_worldclim_soilgrids.npy')[()]
+rf_grid = np.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_grid.npy')[()]
 
 # create a pandas dataframe storing parameters and results of the cv
 #cv_res = pd.DataFrame(rf_grid.cv_results_['params'])
