@@ -58,12 +58,8 @@ X_train_resampled,y_train_resampled = balance_training_data(X_train,y_train,n_bi
 rf_best.fit(X_train_resampled,y_train_resampled)
 #create some pandas df
 df_train = pd.DataFrame({'obs':y_train,'sim':rf_best.predict(X_train)})
-df_train.sim[df_train.sim<0] = 0.
-
 df_test =  pd.DataFrame({'obs':y_test,'sim':rf_best.predict(X_test)})
-df_test.sim[df_test.sim<0] = 0.
 #plot
-sns.set()
 fig = plt.figure('cal/val random',figsize=(10,6))
 fig.clf()
 #first ax
