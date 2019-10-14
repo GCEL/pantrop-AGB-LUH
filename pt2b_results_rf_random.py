@@ -13,11 +13,11 @@ from sklearn.model_selection import train_test_split
 
 #load the fitted rf_random
 #rf_random = joblib.load('/disk/scratch/local.2/jexbraya/pantrop-AGB-LUH/saved_algorithms/rf_random.pkl')
-rf_random = np.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_random.npy')[()]
+rf_random = np.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_random.npy.npz')['arr_0'][()]
 
 # create a pandas dataframe storing parameters and results of the cv
 #cv_res = pd.DataFrame(rf_random.cv_results_['params'])
-cv_res = pd.DataFrame(rf_random.['params'])
+cv_res = pd.DataFrame(rf_random['params'])
 params = cv_res.columns #save parameter names for later
 #get the scores
 #cv_res['mean_train_score'] = .5*(-rf_random.cv_results_['mean_train_score'])**.5
@@ -40,9 +40,13 @@ rf_best = RandomForestRegressor(bootstrap=cv_res['bootstrap'][idx],
 
 #do some plots
 sns.set()
-sns.pairplot(data=cv_res,hue='bootstrap')
+sns.pairplot(data=cv_res,hue='bootstrap',vars=[ 'max_depth', 'max_features', 'min_samples_leaf',
+       'n_estimators', 'mean_test_score', 'ratio_score'])
+plt.tight_layout()
+plt.savefig('./figures/optimisation/random_search_parameter_pairplot.png')
+plt.show()
 
-pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop-AGB-LUH/saved_algorithms/pca_pipeline.pkl')
+pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/pca_pipeline.pkl')
 predictors,landmask = get_predictors(y0=2000,y1=2009)
 
 #transform the data
@@ -76,4 +80,5 @@ for dd, df in enumerate([df_train,df_test]):
 
 #show / save
 fig.show()
+fig.savefig('./figures/optimisation/random_search_best_calval.png')
 #plt.show()
