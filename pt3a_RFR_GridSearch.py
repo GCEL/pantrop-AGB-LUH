@@ -12,7 +12,7 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.externals import joblib
 
-pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop-AGB-LUH/saved_algorithms/pca_pipeline.pkl')
+pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/pca_pipeline.pkl')
 
 predictors,landmask = get_predictors(y0=2000,y1=2009)
 
@@ -39,23 +39,25 @@ GridSearchResults['scores']=[]
 GridSearchResults['mean_train_score']=[]
 GridSearchResults['mean_test_score']=[]
 best_score = np.inf
-for ii,p1 in param_grid['max_features']:
-    for jj,p2 in param_grid['min_samples_leaf']:
-        print('{0}%\r'.format(float(ii)/float((ii*jj))*100),end='\r')
-        params={'max_features':p1,'min_samples_leaf':p2}
+np1 = param_grid['max_features'].size
+np2 = param_grid['min_samples_leaf'].size
+for ii,p1 in enumerate(param_grid['max_features']):
+    for jj,p2 in enumerate(param_grid['min_samples_leaf']):
+        print('{0}%\r'.format(float(ii*np2+jj)/float((np1*np2))*100),end='\r')
+        params={'max_features':p1,'min_samples_leaf':p2,'n_estimators':1000,
+                'random_state':26,'n_jobs':30,'bootstrap':True}
         GridSearchResults['params'].append(params)
         # run balanced cross validation
         scores = balanced_cv(params,X_train,y_train,cv=fold,target=12600,random_state=2097)
         GridSearchResults['scores'].append(scores)
         GridSearchResults['mean_test_score'].append(np.mean(scores['test']))
         GridSearchResults['mean_train_score'].append(np.mean(scores['train']))
-        GridSearchResults['mean_scores'].append(np.mean(scores))
         if GridSearchResults['mean_test_score'][ii]<best_score:
             best_score = GridSearchResults['mean_test_score'][ii]
             print('\tNew Best RMSE: %.06f' % (best_score))
             print(params)
 
-np.savez('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_grid.npy',GridSearchResults)
+np.savez('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_grid.npz',GridSearchResults)
 
 """
 #perform a grid search on hyper parameters using training subset of data
