@@ -34,7 +34,6 @@ rf_best = RandomForestRegressor(bootstrap=cv_res['bootstrap'][idx],
             min_samples_leaf=cv_res['min_samples_leaf'][idx],
             n_estimators=cv_res['n_estimators'][idx],
             n_jobs=30,
-            oob_score=True,
             random_state=26,
             )
 
@@ -55,7 +54,8 @@ X = pca.transform(predictors)
 y = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Map_0.25d.tif')[0].values[landmask]
 #split train and test subset, specifying random seed
 X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.25, random_state=26)
-
+X_train_resampled,y_train_resampled = balance_training_data(X_train,y_train,n_bins=10,random_state=31)
+rf_best.fit(X_train_resampled,y_train_resampled)
 #create some pandas df
 df_train = pd.DataFrame({'obs':y_train,'sim':rf_best.predict(X_train)})
 df_train.sim[df_train.sim<0] = 0.
