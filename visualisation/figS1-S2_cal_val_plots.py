@@ -17,7 +17,7 @@ import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import summary_table
 from scipy.stats import gaussian_kde
 import seaborn as sns
-
+import sys
 sys.path.append('../')
 from useful import *
 
