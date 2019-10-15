@@ -12,7 +12,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 #load the fitted rf_grid
-rf_grid = np.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_grid.npz')[()]
+rf_grid = np.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_grid.npz')['arr_0'][()]
 
 # create a pandas dataframe storing parameters and results of the cv
 #cv_res = pd.DataFrame(rf_grid.cv_results_['params'])
@@ -38,7 +38,7 @@ rf_best = RandomForestRegressor(bootstrap=True,
             )
 
 #do some plots
-pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop-AGB-LUH/saved_algorithms/pca_pipeline.pkl')
+pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/pca_pipeline.pkl')
 predictors,landmask = get_predictors(y0=2000,y1=2009)
 
 #transform the data
@@ -53,10 +53,10 @@ rf_best.fit(X_train_resampled,y_train_resampled)
 
 #create some pandas df
 df_train = pd.DataFrame({'obs':y_train,'sim':rf_best.predict(X_train)})
-df_train.sim[df_train.sim<0] = 0.
+#df_train.sim[df_train.sim<0] = 0.
 
 df_test =  pd.DataFrame({'obs':y_test,'sim':rf_best.predict(X_test)})
-df_test.sim[df_test.sim<0] = 0.
+#df_test.sim[df_test.sim<0] = 0.
 #plot
 sns.set()
 fig = plt.figure('cal/val grid',figsize=(10,6))
@@ -74,6 +74,6 @@ for dd, df in enumerate([df_train,df_test]):
     plt.ylabel('Reconstructed AGB [Mg ha $^{-1}$]')
 
 #show / save
-fig.show()
 fig.savefig('./figures/optimisation/grid_search_best_calval.png')
+fig.show()
 #plt.show()

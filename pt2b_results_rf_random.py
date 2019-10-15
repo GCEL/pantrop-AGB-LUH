@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 
 #load the fitted rf_random
 #rf_random = joblib.load('/disk/scratch/local.2/jexbraya/pantrop-AGB-LUH/saved_algorithms/rf_random.pkl')
-rf_random = np.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_random.npy.npz')['arr_0'][()]
+rf_random = np.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_random.npz')['arr_0'][()]
 
 # create a pandas dataframe storing parameters and results of the cv
 #cv_res = pd.DataFrame(rf_random.cv_results_['params'])
