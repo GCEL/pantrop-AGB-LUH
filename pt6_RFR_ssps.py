@@ -12,12 +12,12 @@ from sklearn.externals import joblib
 import pandas as pd
 import glob
 
-pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop-AGB-LUH/saved_algorithms/pca_pipeline.pkl')
+pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/pca_pipeline.pkl')
 
 #load the fitted rfs
-rf_med = joblib.load('/disk/scratch/local.2/dmilodow/pantrop-AGB-LUH/saved_algorithms/rf_mean.pkl')
-rf_upp = joblib.load('/disk/scratch/local.2/dmilodow/pantrop-AGB-LUH/saved_algorithms/rf_upper.pkl')
-rf_low = joblib.load('/disk/scratch/local.2/dmilodow/pantrop-AGB-LUH/saved_algorithms/rf_lower.pkl')
+rf_med = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_mean.pkl')
+rf_upp = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_upper.pkl')
+rf_low = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_lower.pkl')
 
 #iterate over years
 years = np.arange(2015,2101)
@@ -66,4 +66,4 @@ for luh_file in luh_files:
                 'AGB_upper':{'zlib':True,'complevel':1},
                 'AGB_lower':{'zlib':True,'complevel':1},}
 
-    agb_ssp.to_netcdf('/disk/scratch/local.2/dmilodow/pantrop-AGB-LUH/output/AGB_%s.nc' % ssp,encoding=encoding)
+    agb_ssp.to_netcdf('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/output/AGB_%s.nc' % ssp,encoding=encoding)
