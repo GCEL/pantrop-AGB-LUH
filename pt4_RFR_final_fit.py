@@ -37,8 +37,10 @@ med = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Map_0.25
 unc = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Uncertainty_0.25d.tif')[0].values[landmask]
 
 lvls = ['mean','upper','lower']
-for aa, agb in enumerate([med,med+unc,med-unc]):
-    agb[agb<0] = 0
-    rf_best.fit(X,agb)
-    print(mean_squared_error(rf_best.predict(X),agb))
+for aa, y in enumerate([med,med+unc,med-unc]):
+    y[y<0] = 0
+    X_resampled,y_resampled = balance_training_data(X,y,n_bins=10,random_state=31)
+    rf_best.fit(X_resampled,y_resampled)
+    print(lvls[aa])
+    print('MSE: %.03f' % mean_squared_error(rf_best.predict(X),y))
     joblib.dump(rf_best,'/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_%s.pkl' % lvls[aa])
