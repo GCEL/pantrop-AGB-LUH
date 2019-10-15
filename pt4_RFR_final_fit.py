@@ -2,6 +2,9 @@
 16/11/2018 - JFE
 This files fits the best model from GridSearch to the whole dataset and saves
 it for quick use in production files
+
+11/10/2019 - DTM
+Minor alterations to account for changes in the previous scripts
  """
 
 from useful import *
@@ -14,7 +17,7 @@ import pandas as pd
 pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/pca_pipeline.pkl')
 
 #load the fitted rf_grid
-rf_grid = np.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_grid.npy')[()]
+rf_grid = np.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_grid.npz')['arr_0'][()]
 # Construct best-fitting random forest model
 idx = np.argmin(rf_grid['mean_test_score'])
 rf_best = RandomForestRegressor(bootstrap=True,
