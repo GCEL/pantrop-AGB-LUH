@@ -169,7 +169,7 @@ def balanced_cv(params,X,y,cv=3,target=None,random_state=None):
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
         # balance training set for fold
-        X_resampled,y_resampled = balance_training_data(X,y,n_bins=10,target=target,random_state=random_state+ii)
+        X_resampled,y_resampled = balance_training_data(X_train,y_train,n_bins=10,target=target,random_state=random_state+ii)
         # fit random forest model for fold
         rf.fit(X_resampled,y_resampled)
         # get prediction for test set

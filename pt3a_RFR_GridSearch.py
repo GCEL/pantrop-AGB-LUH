@@ -48,7 +48,7 @@ for ii,p1 in enumerate(param_grid['max_features']):
                 'random_state':26,'n_jobs':30,'bootstrap':True}
         GridSearchResults['params'].append(params)
         # run balanced cross validation
-        scores = balanced_cv(params,X_train,y_train,cv=fold,target=12600,random_state=2097)
+        scores = balanced_cv(params,X_train,y_train,cv=fold,target=12600,random_state=112358)
         GridSearchResults['scores'].append(scores)
         GridSearchResults['mean_test_score'].append(np.mean(scores['test']))
         GridSearchResults['mean_train_score'].append(np.mean(scores['train']))

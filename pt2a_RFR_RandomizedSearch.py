@@ -27,7 +27,7 @@ X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.25, random
 #create the random forest object and fit it out of the box
 rf = RandomForestRegressor(n_jobs=20,random_state=26)
 # rebalance the training set
-X_train_resampled,y_train_resampled = balance_training_data(X_train,y_train,n_bins=10,random_state=31)
+X_train_resampled,y_train_resampled = balance_training_data(X_train,y_train,n_bins=10,random_state=112358)
 # fit model
 rf.fit(X_train_resampled,y_train_resampled)
 #save the mse for the cal / val
@@ -58,7 +58,7 @@ for ii in range(0,n_iter):
         params[param] = np.random.choice(random_grid[param])
     params['n_jobs'] = 30
     RandomizedSearchResults['params'].append(params)
-    scores = balanced_cv(params,X_train,y_train,cv=fold,target=12600,random_state=2097)
+    scores = balanced_cv(params,X_train,y_train,cv=fold,target=12600,random_state=112358)
     RandomizedSearchResults['scores'].append(scores)
     RandomizedSearchResults['mean_test_score'].append(np.mean(scores['test']))
     RandomizedSearchResults['mean_train_score'].append(np.mean(scores['train']))
