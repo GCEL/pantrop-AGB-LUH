@@ -21,6 +21,8 @@ import gdal
 import pandas as pd
 from sklearn.externals import joblib
 
+import sys
+sys.path.append('../')
 from useful import *
 
 path2prj = '/disk/scratch/local.2/jexbraya/potABC_avitabile/'
@@ -32,7 +34,7 @@ latorig = np.arange(90-1/8.,-90.,-1/4.)
 lonorig = np.arange(-180+1/8.,180.,1/4.)
 areas = np.zeros([latorig.size,lonorig.size])
 res = np.abs(latorig[1]-latorig[0])
-for la,latval in enumerate(latorig):  
+for la,latval in enumerate(latorig):
     areas[la]= (6371e3)**2 * ( np.deg2rad(0+res/2.)-np.deg2rad(0-res/2.) ) * (np.sin(np.deg2rad(latval+res/2.))-np.sin(np.deg2rad(latval-res/2.)))
 
 lon2d,lat2d = np.meshgrid(lonorig,latorig)
@@ -85,9 +87,9 @@ scenlong = ['SSP1-2.6','SSP4-3.4','SSP2-4.5','SSP4-6.0','SSP3-7.0','SSP5-8.5']
 for rr,rcp in enumerate(scen):
     fname = glob.glob(path2prj+'/../LUH2/*%s*' % rcp)[0]
     rcp_states = Dataset(fname)
-    
+
     for yr,yval in enumerate(years_rcp):
-        rcp_primf = rcp_states.variables['primf'][np.arange(2015,2101)==yval]    
+        rcp_primf = rcp_states.variables['primf'][np.arange(2015,2101)==yval]
         rcp_secdf = rcp_states.variables['secdf'][np.arange(2015,2101)==yval]
 
         forest_areas_rcp[0,rr,yr] = (areas * maskAGB * rcp_primf).sum()*1e-6*1e-6
@@ -95,7 +97,7 @@ for rr,rcp in enumerate(scen):
 
     rcp_states.close()
 
-    
+
 
 
 fig = pl.figure('tseries forest area');fig.clf()
@@ -108,7 +110,7 @@ cols = [[230,159,0],
         [240,228,66],
         [0,114,178],
         [213,94,0],
-        [204,121,167]] 
+        [204,121,167]]
 
 cols = np.array(cols)/255.
 
@@ -123,7 +125,7 @@ pl.grid(True,ls=':')
 pl.fill_between([2000,2009],[0,0],[24,24],color='silver',edgecolor='silver',zorder=-1)
 pl.ylim(12,24)
 #fig.show()
-fig.savefig('figures_secma/figS5_tseries_forestareas_final.png',bbox_inches='tight')
+fig.savefig('../figures/manuscript/figS5_tseries_forestareas_final.png',bbox_inches='tight')
 
 """
 for rr,rcp in enumerate(['2.6','3.4','4.5','6.0','7.0','8.5']):
@@ -133,8 +135,8 @@ for rr,rcp in enumerate(['2.6','3.4','4.5','6.0','7.0','8.5']):
     for mm,msk in enumerate([maskAGB,mask_africa,mask_america,mask_asia]):
         forest_areas_rcp[rr,mm] = (areas * maskAGB * msk * (rcp_primf+rcp_secdf)).sum()*1e-6*1e-6
 
-    
-    
+
+
 
 
 years = np.arange(2015,2101)

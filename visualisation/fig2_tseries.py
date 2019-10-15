@@ -8,12 +8,15 @@ import xarray as xr
 import matplotlib.pyplot as plt
 import numpy as np
 
+import sys
+sys.path.append('../')
+
 #create the figure / ax
 fig=plt.figure('tseries');fig.clf()
 ax = fig.add_subplot(111)
 
 #load agb with past land use
-pot = xr.open_dataset('/disk/scratch/local.2/jexbraya/pantrop-AGB-LUH/output/AGB_hist.nc')
+pot = xr.open_dataset('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/output/AGB_hist.nc')
 
 ref = pot.ts_mean[(pot.time>=2000) & (pot.time<=2009)].mean()
 toplot = (pot.ts_mean-ref)*.48
@@ -36,7 +39,7 @@ scenlong = {'ssp126': 'SSP1-2.6',
             'ssp585': 'SSP5-8.5'}
 
 for sc,scen in enumerate(['ssp126','ssp434','ssp245','ssp460','ssp370','ssp585']):
-    pot = xr.open_dataset('/disk/scratch/local.2/jexbraya/pantrop-AGB-LUH/output/AGB_%s.nc' % scen)
+    pot = xr.open_dataset('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/output/AGB_%s.nc' % scen)
     toplot = (pot.ts_mean-ref)*.48
     toplot.plot(ax=ax,color=cols[scen],ls='-',lw=2,label=scenlong[scen])
 
@@ -47,4 +50,4 @@ ax.fill_between([2000,2009],[-45,-45],[45,45],color='silver',edgecolor='silver',
 ax.set_ylim(-45,45)
 ax.grid(True,ls=':')
 fig.show()
-fig.savefig('fig2_tseries.png',dpi=300,bbox_inches='tight')
+fig.savefig('../figures/manuscript/fig2_tseries.png',dpi=300,bbox_inches='tight')

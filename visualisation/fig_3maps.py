@@ -12,6 +12,9 @@ from cartopy.mpl.geoaxes import GeoAxes
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 import numpy as np
 from mpl_toolkits.axes_grid1 import AxesGrid
+
+import sys
+sys.path.append('../')
 from useful import *
 
 #get areas and landmask
@@ -27,7 +30,7 @@ med[0].values[~landmask] = np.nan
 unc = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Uncertainty_0.25d.tif')
 
 #load agb with past land use
-pot = xr.open_dataset('/disk/scratch/local.2/jexbraya/pantrop-AGB-LUH/output/AGB_hist.nc')
+pot = xr.open_dataset('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/output/AGB_hist.nc')
 
 #print some statistics
 lvls = ['mean','lower','upper']
@@ -80,4 +83,4 @@ for mm,map2plot in enumerate([med[0],pot.AGB_mean[:10].mean(axis=0),dAGB]):
     axgr[mm].text(0.98,0.02,titles[mm],transform=axgr[mm].transAxes,ha='right',va='bottom',weight='bold')
 
 fig.show()
-fig.savefig('fig_3maps.png',bbox_inches='tight',dpi=300)
+fig.savefig('../figures/manuscript/fig_3maps.png',bbox_inches='tight',dpi=300)

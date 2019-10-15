@@ -21,6 +21,8 @@ import gdal
 import pandas as pd
 from sklearn.externals import joblib
 
+import sys
+sys.path.append('../')
 from useful import *
 
 path2prj = '/disk/scratch/local.2/jexbraya/potABC_avitabile/'
@@ -33,7 +35,7 @@ cols = [[230,159,0],
         [240,228,66],
         [0,114,178],
         [213,94,0],
-        [204,121,167]] 
+        [204,121,167]]
 
 cols = np.array(cols)/255.
 #define coordinates and calculate areas
@@ -41,7 +43,7 @@ latorig = np.arange(90-1/8.,-90.,-1/4.)
 lonorig = np.arange(-180+1/8.,180.,1/4.)
 areas = np.zeros([latorig.size,lonorig.size])
 res = np.abs(latorig[1]-latorig[0])
-for la,latval in enumerate(latorig):  
+for la,latval in enumerate(latorig):
     areas[la]= (6371e3)**2 * ( np.deg2rad(0+res/2.)-np.deg2rad(0-res/2.) ) * (np.sin(np.deg2rad(latval+res/2.))-np.sin(np.deg2rad(latval-res/2.)))
 
 lon2d,lat2d = np.meshgrid(lonorig,latorig)
@@ -111,7 +113,7 @@ fig = pl.figure('bars forest',figsize=(12,8));fig.clf()
 titles = ['Pantropical','Americas','Africa','Asia + Australia']
 for mm,mask in enumerate([maskAGB,mask_america,mask_africa,mask_asia]):
     ax = fig.add_subplot(2,2,mm+1)
-    
+
     past = forest_areas[0,mm]
     pres = forest_areas[1,mm]
     rcps = forest_areas_rcp[:,mm]
@@ -129,8 +131,8 @@ for mm,mask in enumerate([maskAGB,mask_america,mask_africa,mask_asia]):
     ax.hlines(pres,ax.get_xlim()[0],ax.get_xlim()[1],linestyles='dashed',colors='gray',linewidths=2)
 
 #fig.show()
-fig.savefig('figures_secma/figS6_barplots_forests_final.png',bbox_inches='tight')
-    
+fig.savefig('../figures/manuscript/figS6_barplots_forests_final.png',bbox_inches='tight')
+
 """
 
 years = np.arange(2015,2101)

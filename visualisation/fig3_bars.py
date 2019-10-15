@@ -7,6 +7,9 @@ dataset for 6 ssp scenarios for the whole region, and separated by continents
 import xarray as xr
 import matplotlib.pyplot as plt
 import numpy as np
+
+import sys
+sys.path.append('../')
 from useful import *
 from mpl_toolkits.axes_grid1 import AxesGrid
 import pandas as pd
@@ -69,7 +72,7 @@ for mm, mask in enumerate([mask_pantrop,mask_america,mask_africa,mask_asia]):
 
     for sc,scen in enumerate(['ssp126','ssp434','ssp245','ssp460','ssp370','ssp585']):
         ticks.append(scenlong[scen])
-        ssp = xr.open_dataset('/disk/scratch/local.2/jexbraya/pantrop-AGB-LUH/output/AGB_%s.nc' % scen)
+        ssp = xr.open_dataset('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/output/AGB_%s.nc' % scen)
 
         #calculate end of century AGB for all levels
         ssp_mean = (ssp.AGB_mean[-1]*areas*mask).sum()*1e-13*.48
@@ -96,4 +99,4 @@ for mm, mask in enumerate([mask_pantrop,mask_america,mask_africa,mask_asia]):
     ax.hlines(0,ax.get_xlim()[0],ax.get_xlim()[1])
     ax.set_ylim(-40,20)
 fig.show()
-fig.savefig('fig3_bars.png',dpi=300,bbox_inches='tight')
+fig.savefig('../figures/manuscript/fig3_bars.png',dpi=300,bbox_inches='tight')

@@ -7,6 +7,9 @@ dataset for 6 ssp scenarios for the whole region
 import xarray as xr
 import matplotlib.pyplot as plt
 import numpy as np
+
+import sys
+sys.path.append('../')
 from useful import *
 from mpl_toolkits.axes_grid1 import AxesGrid
 import pandas as pd
@@ -68,7 +71,7 @@ axgr = AxesGrid(fig,111,nrows_ncols=(3,2),axes_class=axes_class,label_mode='',cb
 
 for sc,scen in enumerate(['ssp126','ssp434','ssp245','ssp460','ssp370','ssp585']):
 
-    ssp = xr.open_dataset('/disk/scratch/local.2/jexbraya/pantrop-AGB-LUH/output/AGB_%s.nc' % scen)
+    ssp = xr.open_dataset('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/output/AGB_%s.nc' % scen)
     toplot = ssp.AGB_mean[-1].copy()
     toplot.values = (toplot.values-med[0].values)*.48
 
@@ -86,4 +89,4 @@ for sc,scen in enumerate(['ssp126','ssp434','ssp245','ssp460','ssp370','ssp585']
     axgr[sc].add_feature(cfeat.OCEAN,facecolor='k',zorder=-1)
 
 fig.show()
-fig.savefig('end_of_century.png',dpi=300,bbox_inches='tight')
+fig.savefig('figures/manuscript/end_of_century.png',dpi=300,bbox_inches='tight')
