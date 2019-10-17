@@ -2,7 +2,8 @@
 15/10/2019 - DTM
 Plotting PCA correlation matrix
 """
-
+import sys
+sys.path.append('../')
 from useful import *
 from sklearn.externals import joblib
 from scipy.stats import pearsonr
