@@ -89,4 +89,4 @@ for sc,scen in enumerate(['ssp126','ssp434','ssp245','ssp460','ssp370','ssp585']
     axgr[sc].add_feature(cfeat.OCEAN,facecolor='k',zorder=-1)
 
 fig.show()
-fig.savefig('figures/manuscript/end_of_century.png',dpi=300,bbox_inches='tight')
+fig.savefig('../figures/manuscript/end_of_century.png',dpi=300,bbox_inches='tight')
