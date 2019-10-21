@@ -11,6 +11,7 @@ import xarray as xr #xarray to read all types of formats
 import glob
 import numpy as np
 import sys
+from copy import deepcopy
 from imblearn.over_sampling import RandomOverSampler
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import KFold
@@ -175,6 +176,70 @@ def balanced_cv(params,X,y,cv=3,target=None,random_state=None):
         # get prediction for test set
         y_rf_train = rf.predict(X_train)
         y_rf_test = rf.predict(X_test)
+        # calculate rmse
+        scores['train'][ii]=np.sqrt(np.mean((y_train-y_rf_train)**2))
+        scores['test'][ii]=np.sqrt(np.mean((y_test-y_rf_test)**2))
+        ii+=1
+    return scores
+
+
+"""
+rfbc_fit
+-----------
+This function fits the bias correction rf model following by Xu et al., Carbon
+Balance and Management, 2016, which uses a modification of the bootstrap method
+developed by Hooker et al, Statistics and Computing, 2018
+
+Input arguments are a RandomForestRegressor object (rf), the predictors matrix
+(X), and the target vector (y).
+Returns: two fitted random forest models that are required for the bias
+correction
+"""
+def rfbc_fit(rf1,X,y):
+    rf2 = deepcopy(rf1)
+    # fit first random forest model to the observations, y
+    rf1.fit(X,y)
+    # Retrieve out of bag prediction
+    y_oob = rf1.oob_prediction_
+    # New target variable = y_oob - residual
+    # Note that this is more biased than the RF estimate
+    y_new = 2*y_oob-y
+    # Fit second random forest regression to predict y_new
+    rf2.fit(X,y_new)
+
+    return rf1,rf2
+
+"""
+rfbc_predict
+-----------
+This function uses the fitted, bias-corrected random forest regression model
+to make a prediction based on the given predictor matrix X
+Input arguments are the fitted RandomForestRegressor objects from rfbc_fit (rf1,
+rf2), and the predictors matrix (X).
+Returns: prediction from bias corrected random forest regression model
+"""
+def rfbc_predict(rf1,rf2,X):
+    y_hat = 2*rf1.predict(X)-rf2.predict(X)
+    return y_hat
+
+def rfbc_cv(params,X,y,cv=3,random_state=None):
+    # create RandomForestRegressor object
+    rf1 = RandomForestRegressor(**params)
+    # create Kfold object
+    kf = KFold(n_splits=cv,shuffle=True,random_state=random_state)
+    ii=0
+    scores = {'test':np.zeros(cv),'train':np.zeros(cv)}
+    # loop through the folds
+    for train_index, test_index in kf.split(X):
+        # obtain train-test split
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        # balance training set for fold
+        # fit random forest model for fold
+        rf1,rf2 = rfbc_fit(rf1,X_train,y_train)
+        # get prediction for test set
+        y_rf_train = rfbc_predict(rf1,rf2,X_train)
+        y_rf_test = rfbc_predict(rf1,rf2,X_test)
         # calculate rmse
         scores['train'][ii]=np.sqrt(np.mean((y_train-y_rf_train)**2))
         scores['test'][ii]=np.sqrt(np.mean((y_test-y_rf_test)**2))
