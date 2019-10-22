@@ -44,7 +44,7 @@ np1 = param_grid['max_features'].size
 np2 = param_grid['min_samples_leaf'].size
 for ii,p1 in enumerate(param_grid['max_features']):
     for jj,p2 in enumerate(param_grid['min_samples_leaf']):
-        print('{0}%\r'.format(float(ii*np2+jj)/float((np1*np2))*100),end='\r')
+        print('{0:.3f}%\r'.format(float(ii*np2+jj)/float((np1*np2))*100),end='\r')
         params={'max_features':p1,'min_samples_leaf':p2,'n_estimators':1000,
                 'random_state':26,'n_jobs':30,'bootstrap':True,'oob_score':True}
         GridSearchResults['params'].append(params)
