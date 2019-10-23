@@ -26,7 +26,7 @@ cv_res['mean_test_score'] = rf_grid['mean_test_score']
 cv_res['ratio_score'] = cv_res['mean_test_score'] / cv_res['mean_train_score']
 
 # Construct best-fitting random forest model
-idx = np.argmin(cv_res['mean_test_score'])
+idx = cv_res['mean_test_score'].values.argmin()
 rf_best = RandomForestRegressor(bootstrap=True,
             max_depth= None,
             max_features=cv_res['max_features'][idx],
@@ -47,7 +47,7 @@ X = pca.transform(predictors)
 y = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Map_0.25d.tif')[0].values[landmask]
 #split train and test subset, specifying random seed
 X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.25, random_state=26)
-rf1,rf2=rfbc_fit(X_train,y_train)
+rf1,rf2=rfbc_fit(rf_best,X_train,y_train)
 
 #create some pandas df
 df_train = pd.DataFrame({'obs':y_train,'sim':rfbc_predict(rf1,rf2,X_train)})
