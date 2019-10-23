@@ -53,8 +53,8 @@ for ii,p1 in enumerate(param_grid['max_features']):
         GridSearchResults['scores'].append(scores)
         GridSearchResults['mean_test_score'].append(np.mean(scores['test']))
         GridSearchResults['mean_train_score'].append(np.mean(scores['train']))
-        if GridSearchResults['mean_test_score'][ii]<best_score:
-            best_score = GridSearchResults['mean_test_score'][ii]
+        if np.mean(scores['test']) < best_score:
+            best_score = np.mean(scores['test'])
             print('\tNew Best RMSE: %.06f' % (best_score))
             print(params)
 
