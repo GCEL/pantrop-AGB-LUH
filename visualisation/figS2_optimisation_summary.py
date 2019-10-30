@@ -28,8 +28,8 @@ grid_res = pd.DataFrame(rf_grid['params'])
 #get the scores
 grid_res['mean_train_score'] = rf_grid['mean_train_score']
 grid_res['mean_test_score'] = rf_grid['mean_test_score']
-#grid_res['grad_test'] = rf_grid['gradient_test']
-#grid_res['grad_train'] = rf_grid['gradient_train']
+grid_res['grad_test'] = rf_grid['gradient_test']
+grid_res['grad_train'] = rf_grid['gradient_train']
 grid_res['ratio_score'] = grid_res['mean_test_score'] / grid_res['mean_train_score']
 
 cv_res = cv_res.append(grid_res)
