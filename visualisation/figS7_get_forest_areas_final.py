@@ -131,7 +131,7 @@ for mm,mask in enumerate([maskAGB,mask_america,mask_africa,mask_asia]):
     ax.hlines(pres,ax.get_xlim()[0],ax.get_xlim()[1],linestyles='dashed',colors='gray',linewidths=2)
 
 #fig.show()
-fig.savefig('../figures/manuscript/figS6_barplots_forests_final.png',bbox_inches='tight')
+fig.savefig('../figures/manuscript/figS7_barplots_forests_final.png',bbox_inches='tight')
 
 """
 
