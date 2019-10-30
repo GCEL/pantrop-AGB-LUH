@@ -16,6 +16,8 @@ from imblearn.over_sampling import RandomOverSampler
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import KFold
 
+from scipy import stats
+
 def get_predictors(y0=2000,y1=None,luh_file='/disk/scratch/local.2/jexbraya/LUH2/states.nc',return_landmask = True):
 
     #check that both years are defined, if not assume only one year of data needed
@@ -228,7 +230,8 @@ def rfbc_cv(params,X,y,cv=3,random_state=None):
     # create Kfold object
     kf = KFold(n_splits=cv,shuffle=True,random_state=random_state)
     ii=0
-    scores = {'test':np.zeros(cv),'train':np.zeros(cv)}
+    scores = {'test':np.zeros(cv),'train':np.zeros(cv),
+              'gradient_test':np.zeros(cv),'gradient_train':np.zeros(cv)}
     # loop through the folds
     for train_index, test_index in kf.split(X):
         # obtain train-test split
@@ -243,5 +246,10 @@ def rfbc_cv(params,X,y,cv=3,random_state=None):
         # calculate rmse
         scores['train'][ii]=np.sqrt(np.mean((y_train-y_rf_train)**2))
         scores['test'][ii]=np.sqrt(np.mean((y_test-y_rf_test)**2))
+        # get gradient of linear regression
+        m_train,c_train,r,p,stderr = stats.linregress(y_train,y_rf_train)
+        m_test,c_test,r,p,stderr = stats.linregress(y_test,y_rf_test)
+        scores['gradient_train'][ii]=m_train
+        scores['gradient_test'][ii]=m_test
         ii+=1
     return scores
