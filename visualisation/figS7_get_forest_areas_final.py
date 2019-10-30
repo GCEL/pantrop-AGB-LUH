@@ -110,7 +110,7 @@ for rr,rcp in enumerate(scen):
 cols = ['k','k']+list(cols)
 
 fig = pl.figure('bars forest',figsize=(12,8));fig.clf()
-titles = ['Pantropical','Americas','Africa','Asia + Australia']
+titles = ['Pantropical','Americas','Africa','Asia']
 for mm,mask in enumerate([maskAGB,mask_america,mask_africa,mask_asia]):
     ax = fig.add_subplot(2,2,mm+1)
 
