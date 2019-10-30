@@ -28,7 +28,7 @@ cv_res['ratio_score'] = cv_res['mean_test_score'] / cv_res['mean_train_score']
 # Construct best-fitting random forest model
 idx = cv_res['mean_test_score'].values.argmin()
 rf_best = RandomForestRegressor(bootstrap=True,
-            max_depth= None,
+            max_depth= cv_res['max_depth'][idx],
             max_features=cv_res['max_features'][idx],
             min_samples_leaf=cv_res['min_samples_leaf'][idx],
             n_estimators=1000,
@@ -36,6 +36,12 @@ rf_best = RandomForestRegressor(bootstrap=True,
             oob_score=True,
             random_state=26,
             )
+sns.set()
+sns.pairplot(data=cv_res,hue='bootstrap',vars=[ 'max_depth', 'max_features', 'min_samples_leaf',
+        'mean_test_score','mean_train_score', 'ratio_score'])
+plt.tight_layout()
+plt.savefig('./figures/optimisation/grid_search_parameter_pairplot.png')
+plt.show()
 
 #do some plots
 pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/pca_pipeline.pkl')
@@ -62,7 +68,7 @@ titles = ['a) Calibration','b) Validation']
 for dd, df in enumerate([df_train,df_test]):
     ax = fig.add_subplot(1,2,dd+1,aspect='equal')
     sns.regplot(x='obs',y='sim',data=df,scatter_kws={'s':1},line_kws={'color':'k'},ax=ax)
-
+    print(titles[dd],'; RMSE = ', np.sqrt(np.mean((df['sim']-df['obs'])**2)))
     #adjust style
     ax.set_title(titles[dd]+' (n = %05i)' % df.shape[0])
     plt.xlim(0,550);plt.ylim(0,550)
