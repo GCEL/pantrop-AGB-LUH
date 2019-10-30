@@ -26,12 +26,13 @@ y = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Map_0.25d.
 X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.25, random_state=26)
 
 #define the parameters for the gridsearch
-param_grid = { "max_features": np.linspace(.15,.8,14),
-                "min_samples_leaf": np.linspace(1,8,8,dtype='i')}
+param_grid = { "max_features": np.linspace(.15,.45,7),
+                "min_samples_leaf": np.linspace(1,10,10,dtype='i'),
+                "max_depth": list(np.linspace(200,500,4,dtype='i'))+[None]}
 
 #create the random forest object with predefined parameters
 rf = RandomForestRegressor(n_jobs=30,random_state=26,oob_score=True,
-                            n_estimators = 1000,bootstrap=True)
+                            n_estimators = 1800,bootstrap=True)
 
 fold=3
 GridSearchResults = {}
@@ -39,24 +40,30 @@ GridSearchResults['params']=[]
 GridSearchResults['scores']=[]
 GridSearchResults['mean_train_score']=[]
 GridSearchResults['mean_test_score']=[]
+GridSearchResults['gradient_train']=[]
+GridSearchResults['gradient_test']=[]
 best_score = np.inf
 np1 = param_grid['max_features'].size
 np2 = param_grid['min_samples_leaf'].size
+np3 = len(param_grid['max_depth'])
 for ii,p1 in enumerate(param_grid['max_features']):
     for jj,p2 in enumerate(param_grid['min_samples_leaf']):
-        print('{0:.3f}%\r'.format(float(ii*np2+jj)/float((np1*np2))*100),end='\r')
-        params={'max_features':p1,'min_samples_leaf':p2,'n_estimators':1000,
-                'random_state':26,'n_jobs':30,'bootstrap':True,'oob_score':True}
-        GridSearchResults['params'].append(params)
-        # run balanced cross validation
-        scores = rfbc_cv(params,X_train,y_train,cv=fold,random_state=112358)
-        GridSearchResults['scores'].append(scores)
-        GridSearchResults['mean_test_score'].append(np.mean(scores['test']))
-        GridSearchResults['mean_train_score'].append(np.mean(scores['train']))
-        if np.mean(scores['test']) < best_score:
-            best_score = np.mean(scores['test'])
-            print('\tNew Best RMSE: %.06f' % (best_score))
-            print(params)
+        for kk,p3 in enumerate(param_grid['max_depth']):
+            print('{0:.3f}%\r'.format(float(ii*np2*np3+jj*np3+kk)/float((np1*np2*np3))*100),end='\r')
+            params={'max_features':p1,'min_samples_leaf':p2,'max_depth':p3,'n_estimators':1800,
+                    'random_state':26,'n_jobs':30,'bootstrap':True,'oob_score':True}
+            GridSearchResults['params'].append(params)
+            # run balanced cross validation
+            scores = rfbc_cv(params,X_train,y_train,cv=fold,random_state=112358)
+            GridSearchResults['scores'].append(scores)
+            GridSearchResults['mean_test_score'].append(np.mean(scores['test']))
+            GridSearchResults['mean_train_score'].append(np.mean(scores['train']))
+            GridSearchResults['gradient_train'].append(np.mean(scores['gradient_train']))
+            GridSearchResults['gradient_test'].append(np.mean(scores['gradient_test']))
+            if np.mean(scores['test']) < best_score:
+                best_score = np.mean(scores['test'])
+                print('\tNew Best RMSE: %.06f' % (best_score))
+                print(params)
 
 np.savez('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rfbc_grid.npz',GridSearchResults)
 
