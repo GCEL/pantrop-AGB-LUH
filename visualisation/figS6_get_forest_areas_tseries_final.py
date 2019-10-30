@@ -125,7 +125,7 @@ pl.grid(True,ls=':')
 pl.fill_between([2000,2009],[0,0],[24,24],color='silver',edgecolor='silver',zorder=-1)
 pl.ylim(12,24)
 #fig.show()
-fig.savefig('../figures/manuscript/figS5_tseries_forestareas_final.png',bbox_inches='tight')
+fig.savefig('../figures/manuscript/figS6_tseries_forestareas_final.png',bbox_inches='tight')
 
 """
 for rr,rcp in enumerate(['2.6','3.4','4.5','6.0','7.0','8.5']):
