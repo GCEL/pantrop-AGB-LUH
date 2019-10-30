@@ -75,7 +75,7 @@ def plot_OLS(ax,target,Y,ss,mode='unicolor'):
 
 
 # load random forest algorithm
-rf = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_mean.pkl')
+rf = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rfbc_mean.pkl')
 # load predictors and fit pca
 pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/pca_pipeline.pkl')
 predictors,landmask = get_predictors(y0=2000,y1=2009)
@@ -84,12 +84,15 @@ y = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Map_0.25d.
 
 #split train and test subset, specifying random seed
 X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.25, random_state=26)
-X_train_resampled,y_train_resampled = balance_training_data(X_train,y_train,n_bins=10,random_state=31)
-rf.fit(X_train_resampled,y_train_resampled)
+#X_train_resampled,y_train_resampled = balance_training_data(X_train,y_train,n_bins=10,random_state=31)
+#rf.fit(X_train_resampled,y_train_resampled)
+rf1,rf2=rfbc_fit(rf,X_train,y_train)
 
 #create some pandas df
-df_train = pd.DataFrame({'obs':y_train,'sim':rf.predict(X_train)})
-df_test =  pd.DataFrame({'obs':y_test,'sim':rf.predict(X_test)})
+#df_train = pd.DataFrame({'obs':y_train,'sim':rf.predict(X_train)})
+#df_test =  pd.DataFrame({'obs':y_test,'sim':rf.predict(X_test)})
+df_train = pd.DataFrame({'obs':y_train,'sim':rfbc_predict(rf1,rf2,X_train)})
+df_test =  pd.DataFrame({'obs':y_test,'sim':rfbc_predict(rf1,rf2,X_test)})
 
 figval = pl.figure('validation',figsize=(15,15));figval.clf()
 titles = ['Calibration','Validation']
