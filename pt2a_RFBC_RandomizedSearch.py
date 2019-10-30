@@ -11,6 +11,8 @@ from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, train_test
 from sklearn.metrics import mean_squared_error
 from sklearn.externals import joblib
 
+from scipy import stats
+
 pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/pca_pipeline.pkl')
 
 predictors,landmask = get_predictors(y0=2000,y1=2009)
@@ -37,16 +39,18 @@ print('Out of the box RMSE:\n\tcalibration score = %f\n\tvalidation_score = %f' 
 
 #define the parameters for the search
 random_grid = { "n_estimators": np.linspace(200,2000,10,dtype='i'),
-                "max_depth": list(np.linspace(5,100,20,dtype='i'))+[None],
-                "max_features": np.linspace(.1,1.,10),
-                "min_samples_leaf": list(np.linspace(5,50,10,dtype='i'))}
-n_iter = 100
+                "max_depth": list(np.linspace(10,500,20,dtype='i'))+[None],
+                "max_features": np.linspace(.1,0.8,8),
+                "min_samples_leaf": np.linspace(1,30,7,dtype='i')}
+n_iter = 200
 fold=3
 RandomizedSearchResults = {}
 RandomizedSearchResults['params']=[]
 RandomizedSearchResults['scores']=[]
 RandomizedSearchResults['mean_train_score']=[]
 RandomizedSearchResults['mean_test_score']=[]
+RandomizedSearchResults['gradient_train']=[]
+RandomizedSearchResults['gradient_test']=[]
 best_score = np.inf
 print('Starting randomised search')
 for ii in range(0,n_iter):
@@ -62,9 +66,11 @@ for ii in range(0,n_iter):
     RandomizedSearchResults['scores'].append(scores)
     RandomizedSearchResults['mean_test_score'].append(np.mean(scores['test']))
     RandomizedSearchResults['mean_train_score'].append(np.mean(scores['train']))
+    RandomizedSearchResults['gradient_train'].append(np.mean(scores['gradient_train']))
+    RandomizedSearchResults['gradient_test'].append(np.mean(scores['gradient_test']))
     if RandomizedSearchResults['mean_test_score'][ii]<best_score:
         best_score = RandomizedSearchResults['mean_test_score'][ii]
         print('\tNew Best RMSE: %.06f' % (best_score))
         print(params)
 
-np.savez('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_random.npz',RandomizedSearchResults)
+np.savez('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rfbc_random.npz',RandomizedSearchResults)
