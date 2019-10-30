@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 
 #load the fitted rf_random
 #rf_random = joblib.load('/disk/scratch/local.2/jexbraya/pantrop-AGB-LUH/saved_algorithms/rf_random.pkl')
-rf_random = np.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_random.npz')['arr_0'][()]
+rf_random = np.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rfbc_random.npz')['arr_0'][()]
 
 # create a pandas dataframe storing parameters and results of the cv
 #cv_res = pd.DataFrame(rf_random.cv_results_['params'])
@@ -24,8 +24,10 @@ params = cv_res.columns #save parameter names for later
 #cv_res['mean_test_score'] = .5*(-rf_random.cv_results_['mean_test_score'])**.5
 cv_res['mean_train_score'] = rf_random['mean_train_score']
 cv_res['mean_test_score'] = rf_random['mean_test_score']
+cv_res['grad_test'] = rf_random['gradient_test']
+cv_res['grad_train'] = rf_random['gradient_train']
 cv_res['ratio_score'] = cv_res['mean_test_score'] / cv_res['mean_train_score']
-
+cv_res['overcorrection'] = cv_res['grad_train'].values>1
 # Construct best-fitting random forest model
 idx = np.argmin(cv_res['mean_test_score'])
 rf_best = RandomForestRegressor(bootstrap=True,
@@ -40,8 +42,8 @@ rf_best = RandomForestRegressor(bootstrap=True,
 
 #do some plots
 sns.set()
-sns.pairplot(data=cv_res,hue='bootstrap',vars=[ 'max_depth', 'max_features', 'min_samples_leaf',
-       'n_estimators', 'mean_test_score', 'ratio_score'])
+sns.pairplot(data=cv_res,hue='overcorrection',vars=[ 'max_depth', 'max_features', 'min_samples_leaf',
+       'n_estimators', 'mean_test_score', 'grad_train', 'grad_test','ratio_score'])
 plt.tight_layout()
 plt.savefig('./figures/optimisation/random_search_parameter_pairplot.png')
 plt.show()
