@@ -52,7 +52,7 @@ for ii,axes_row in enumerate(axes):
 for jj, ax in enumerate(axes[-1]):
     for tick in ax.xaxis.get_major_ticks():
         tick.label.set_fontsize(8)
-        ax.set_xlabel(col_labels[ii],fontsize=8)
+        ax.set_xlabel(col_labels[jj],fontsize=8)
 
 fig.tight_layout()
 fig.show()
