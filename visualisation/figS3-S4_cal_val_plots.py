@@ -102,7 +102,7 @@ for ss,df in enumerate([df_train,df_test]):
     ax.set_title(titles[ss])
 
 figval.show()
-figval.savefig('../figures/manuscript/figS2_calval_scatter.png',bbox_inches='tight')
+figval.savefig('../figures/manuscript/figS3_calval_scatter.png',bbox_inches='tight')
 
 # full model
 X_resampled,y_resampled = balance_training_data(X,y,n_bins=10,random_state=31)
@@ -112,4 +112,4 @@ figfinal = pl.figure(figsize=(8,6));figfinal.clf()
 ax = figfinal.add_subplot(111)
 plot_OLS(ax,df_final['obs'],df_final['sim'],0,'density')
 figfinal.show()
-figfinal.savefig('../figures/manuscript/figS3_cal_final_scatter.png',bbox_inches='tight')
+figfinal.savefig('../figures/manuscript/figS4_cal_final_scatter.png',bbox_inches='tight')
