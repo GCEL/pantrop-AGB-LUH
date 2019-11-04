@@ -44,7 +44,10 @@ sns.set()
 fig,axes = plt.subplots(nrows=5,ncols=5,figsize=[8,9], sharex='col',sharey='row')
 for ii,axes_row in enumerate(axes):
     for jj, ax in enumerate(axes_row):
-        ax.plot(cv_res[col_vars[jj]],cv_res[row_vars[ii]],'.',ms=1)
+        #mask = cv_res['grad_train']>1
+        #ax.plot(cv_res[col_vars[jj]][~mask],cv_res[row_vars[ii]][~mask],'.',ms=1)
+        #ax.plot(cv_res[col_vars[jj]][mask],cv_res[row_vars[ii]][mask],'.',ms=1)
+        ax.plot(cv_res[col_vars[jj]][mask],cv_res[row_vars[ii]],'.',ms=1)
         if jj==0:
             ax.set_ylabel(row_labels[ii],fontsize=8)
             for tick in ax.yaxis.get_major_ticks():
