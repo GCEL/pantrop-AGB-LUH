@@ -32,7 +32,13 @@ rf_best = RandomForestRegressor(bootstrap=True,
 print(rf_grid['params'][idx])
 #refit to whole dataset - get predictors and targets
 predictors,landmask = get_predictors(y0=2000,y1=2009)
+continents = get_continents(landmask)
+continents = continents[landmask].reshape(landmask.sum(),1)
+
+#transform the data
 X = pca.transform(predictors)
+X = np.hstack((X,continents))
+
 med = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Map_0.25d.tif')[0].values[landmask]
 unc = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Uncertainty_0.25d.tif')[0].values[landmask]
 
