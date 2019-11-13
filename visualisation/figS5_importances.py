@@ -33,7 +33,7 @@ pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorith
 predictors,landmask = useful.get_predictors(y0=2000,y1=2009)
 y = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Map_0.25d.tif')[0].values[landmask]
 X = pca.transform(predictors)
-continents = get_continents(landmask)
+continents = useful.get_continents(landmask)
 continents = continents[landmask].reshape(landmask.sum(),1)
 
 #transform the data
