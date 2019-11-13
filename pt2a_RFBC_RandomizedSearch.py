@@ -16,10 +16,12 @@ from scipy import stats
 pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/pca_pipeline.pkl')
 
 predictors,landmask = get_predictors(y0=2000,y1=2009)
+continents = get_continents(landmask)
+continents = continents[landmask].reshape(landmask.sum(),1)
 
 #transform the data
 X = pca.transform(predictors)
-
+X = np.hstack((X,continents))
 #get the agb data
 y = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Map_0.25d.tif')[0].values[landmask]
 
@@ -41,7 +43,7 @@ print('Out of the box RMSE:\n\tcalibration score = %f\n\tvalidation_score = %f' 
 random_grid = { "n_estimators": np.linspace(200,2000,10,dtype='i'),
                 "max_depth": list(np.linspace(10,500,20,dtype='i'))+[None],
                 "max_features": np.linspace(.1,0.8,8),
-                "min_samples_leaf": np.linspace(1,30,7,dtype='i')}
+                "min_samples_leaf": np.linspace(1,50,11,dtype='i')}
 n_iter = 200
 fold=3
 RandomizedSearchResults = {}
@@ -73,4 +75,4 @@ for ii in range(0,n_iter):
         print('\tNew Best RMSE: %.06f' % (best_score))
         print(params)
 
-np.savez('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rfbc_random.npz',RandomizedSearchResults)
+np.savez('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rfbc_random_continents.npz',RandomizedSearchResults)
