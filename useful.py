@@ -15,7 +15,8 @@ from copy import deepcopy
 from imblearn.over_sampling import RandomOverSampler
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import KFold
-
+from eli5.permutation_importance import get_score_importances
+from sklearn.model_selection import train_test_split
 from scipy import stats
 
 def get_predictors(y0=2000,y1=None,luh_file='/disk/scratch/local.2/jexbraya/LUH2/states.nc',return_landmask = True):
@@ -109,6 +110,23 @@ def get_areas():
         areas[la]= (6371e3)**2 * ( np.deg2rad(0+res/2.)-np.deg2rad(0-res/2.) ) * (np.sin(np.deg2rad(latval+res/2.))-np.sin(np.deg2rad(latval-res/2.)))
 
     return areas
+
+# get continents
+def get_continents(landmask):
+    latorig = np.arange(90-1/8.,-90.,-1/4.)
+    lonorig = np.arange(-180+1/8.,180.,1/4.)
+    continents = np.zeros([latorig.size,lonorig.size])
+    lon2d,lat2d = np.meshgrid(lonorig,latorig)
+    africa_mask = (lon2d>-25.) & (lon2d<58)
+    americas_mask = lon2d<-25.
+    asia_mask = lon2d>58.
+    continents[africa_mask]=1
+    continents[americas_mask]=2
+    continents[asia_mask]=3
+    continents[~landmask]=np.nan
+    return continents
+
+
 
 """
 balance_training_data
