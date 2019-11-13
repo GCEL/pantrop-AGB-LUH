@@ -40,10 +40,6 @@ continents = continents[landmask].reshape(landmask.sum(),1)
 X = pca.transform(predictors)
 X = np.hstack((X,continents))
 
-# create variable labels
-varnames = np.arange(1,X.shape[0]+1).astype('str')
-varnames[-1] = 'region'
-
 # load random forest algorithm
 rf = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rfbc_mean.pkl')
 rf1=rf['rf1']
@@ -59,8 +55,10 @@ n_iter=5
 X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.75,test_size=0.25,random_state=23)
 base_score,score_drops = get_score_importances(r2_score,X_test,y_test,n_iter=n_iter)
 labels = []
-for ii in range(0,X_test.shape[1]):
-    labels.append('PC%s' % str(ii+1).zfill(2))
+for ii in range(1,X.shape[1]):
+    labels.append('PC%s' % str(ii).zfill(2))
+labels.append('Region')
+
 var_labels = labels*n_iter
 var_imp = np.zeros(n_iter*len(labels))
 for ii,drops_iter in enumerate(score_drops):
