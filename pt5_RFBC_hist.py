@@ -26,11 +26,17 @@ lon = np.arange(-180+0.125,180,0.25)
 #get areas
 areas = get_areas()
 
+# get region masks
+continents = get_continents(landmask)
+continents = continents[landmask].reshape(landmask.sum(),1)
+
+
 for yy, year in enumerate(years):
     predictors,landmask = get_predictors(y0=year)
 
     #transform the data
     X = pca.transform(predictors)
+    X = np.hstack((X,continents))
 
     if yy == 0:
         #create coordinates

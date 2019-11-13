@@ -27,6 +27,10 @@ lon = np.arange(-180+0.125,180,0.25)
 #get areas
 areas = get_areas()
 
+# get region masks
+continents = get_continents(landmask)
+continents = continents[landmask].reshape(landmask.sum(),1)
+
 luh_files = sorted(glob.glob('/disk/scratch/local.2/jexbraya/LUH2/*ssp*'))
 for luh_file in luh_files:
     ssp = luh_file.split('-')[-5]
@@ -37,6 +41,7 @@ for luh_file in luh_files:
 
         #transform the data
         X = pca.transform(predictors)
+        X = np.hstack((X,continents))
 
         if yy == 0:
             #create coordinates
