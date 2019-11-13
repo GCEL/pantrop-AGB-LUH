@@ -24,12 +24,12 @@ rf_best = RandomForestRegressor(bootstrap=True,
             max_depth= None,
             max_features=rf_grid['params'][idx]['max_features'],
             min_samples_leaf=rf_grid['params'][idx]['min_samples_leaf'],
-            n_estimators=1000,
+            n_estimators=rf_grid['params'][idx]['n_estimators'],
             n_jobs=30,
             oob_score=True,
             random_state=26,
             )
-
+print(rf_grid['params'][idx])
 #refit to whole dataset - get predictors and targets
 predictors,landmask = get_predictors(y0=2000,y1=2009)
 X = pca.transform(predictors)
