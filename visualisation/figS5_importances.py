@@ -31,9 +31,18 @@ pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorith
 
 # load predictors and transform
 predictors,landmask = useful.get_predictors(y0=2000,y1=2009)
-X = pca.transform(predictors)
-varnames = np.arange(1,X.shape[0]+1).astype('str')
 y = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Map_0.25d.tif')[0].values[landmask]
+X = pca.transform(predictors)
+continents = get_continents(landmask)
+continents = continents[landmask].reshape(landmask.sum(),1)
+
+#transform the data
+X = pca.transform(predictors)
+X = np.hstack((X,continents))
+
+# create variable labels
+varnames = np.arange(1,X.shape[0]+1).astype('str')
+varnames[-1] = 'region'
 
 # load random forest algorithm
 rf = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rfbc_mean.pkl')
