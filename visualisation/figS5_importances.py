@@ -14,10 +14,14 @@ Major modifications - PCA, permutation importance
 
 import numpy as np
 import xarray as xr
+import pandas as pd
 import sys
-import pylab as pl
+from matplotlib import pyplot as plt
+import seaborn as sns
 from sklearn.externals import joblib
-from eli5.sklearn import PermutationImportance
+from eli5.permutation_importance import get_score_importances
+from sklearn.model_selection import train_test_split
+from scipy import stats
 
 sys.path.append('../')
 import useful
@@ -29,25 +33,37 @@ pca = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorith
 predictors,landmask = useful.get_predictors(y0=2000,y1=2009)
 X = pca.transform(predictors)
 varnames = np.arange(1,X.shape[0]+1).astype('str')
-agb = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Map_0.25d.tif')[0].values[landmask]
+y = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Map_0.25d.tif')[0].values[landmask]
 
 # load random forest algorithm
-rf = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rf_mean.pkl')
+rf = joblib.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorithms/rfbc_mean.pkl')
+rf1=rf['rf1']
+rf2=rf['rf2']
 
 # Permutation Importance
-perm = PermutationImportance(rf).fit(X, agb)
-imp = perm.feature_importances_
-impstd = perm.feature_importances_std_ #np.std([tree.feature_importances_ for tree in forest.estimators_], axis=0)
+# - define the score used to underpin importance values
+def r2_score(X,y):
+    y_rfbc = useful.rfbc_predict(rf1,rf2,X)
+    temp1,temp2,r,temp3,temp4 = stats.linregress(y,y_rfbc)
+    return r**2
+n_iter=5
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.75,test_size=0.25,random_state=23)
+base_score,score_drops = get_score_importances(r2_score,X_test,y_test,n_iter=n_iter)
+labels = []
+for ii in range(0,X_test.shape[1]):
+    labels.append('PC%s' % str(ii+1).zfill(2))
+var_labels = labels*n_iter
+var_imp = np.zeros(n_iter*len(labels))
+for ii,drops_iter in enumerate(score_drops):
+    var_imp[ii*len(labels):(ii+1)*len(labels)] = drops_iter
+imp_df = pd.DataFrame(data = {'variable': var_labels,
+                              'permutation_importance': var_imp})
 
-fig = pl.figure('importances',figsize=(4,8));fig.clf()
-ax=fig.add_subplot(111)
-ax.barh(range(imp.size),imp,color='0.5',xerr=impstd,align='center')
-pl.yticks(range(imp.size),varnames)
-ax.tick_params('y',left=False,right=False)
-
-ax.set_xlim(0,1)
-pl.xlabel('variable importance')
-pl.ylabel('principal component')
-ax.set_ylim(-.5,imp.size-.5)
+fig,axis= plt.subplots(nrows=1,ncols=1,figsize=[5,8],sharex=True)
+sns.barplot(x='permutation_importance',y='variable',ci='sd',data=imp_df,ax=axis,color='0.5')
+axis.set_ylabel('Principal component')
+axis.set_xlabel('Permutation importance')
+fig.tight_layout()
+axis.set_xlim(0,1)
 #fig.show()
 fig.savefig('../figures/manuscript/figS5_importances',bbox_inches='tight')
