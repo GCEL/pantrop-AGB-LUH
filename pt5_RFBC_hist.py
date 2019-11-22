@@ -23,16 +23,18 @@ years = np.arange(1850,2016)
 lat = np.arange(90-0.125,-90,-0.25)
 lon = np.arange(-180+0.125,180,0.25)
 
+# get tropics mask (30N-30S)
+lon2d,lat2d = np.meshgrid(lon,lat)
+tropics_mask = np.all((lat2d>=-30,lat2d<=30),axis=0)
+
 #get areas
 areas = get_areas()
 
-# get region masks
-continents = get_continents(landmask)
-continents = continents[landmask].reshape(landmask.sum(),1)
-
-
 for yy, year in enumerate(years):
     predictors,landmask = get_predictors(y0=year)
+    # get region masks
+    continents = get_continents(landmask)
+    continents = continents[landmask].reshape(landmask.sum(),1)
 
     #transform the data
     X = pca.transform(predictors)
@@ -57,10 +59,15 @@ for yy, year in enumerate(years):
     agb_hist.AGB_upper[yy].values[landmask] = rfbc_predict(rf_upp['rf1'],rf_upp['rf2'],X)
     agb_hist.AGB_lower[yy].values[landmask] = rfbc_predict(rf_low['rf1'],rf_low['rf2'],X)
 
+    # clip to tropics
+    agb_hist.AGB_mean[yy].values[~tropics_mask]  = np.nan
+    agb_hist.AGB_upper[yy].values[~tropics_mask] = np.nan
+    agb_hist.AGB_lower[yy].values[~tropics_mask] = np.nan
+
     #get time series
-    agb_hist.ts_mean[yy] = (agb_hist.AGB_mean[yy].values*areas)[landmask].sum()*1e-13
-    agb_hist.ts_upper[yy] = (agb_hist.AGB_upper[yy].values*areas)[landmask].sum()*1e-13
-    agb_hist.ts_lower[yy] = (agb_hist.AGB_lower[yy].values*areas)[landmask].sum()*1e-13
+    agb_hist.ts_mean[yy] = (agb_hist.AGB_mean[yy].values*areas)[landmask*tropics_mask].sum()*1e-13
+    agb_hist.ts_upper[yy] = (agb_hist.AGB_upper[yy].values*areas)[landmask*tropics_mask].sum()*1e-13
+    agb_hist.ts_lower[yy] = (agb_hist.AGB_lower[yy].values*areas)[landmask*tropics_mask].sum()*1e-13
 
 
 #save to a nc file

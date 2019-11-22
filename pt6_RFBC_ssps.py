@@ -24,12 +24,12 @@ years = np.arange(2015,2101)
 lat = np.arange(90-0.125,-90,-0.25)
 lon = np.arange(-180+0.125,180,0.25)
 
+# get tropics mask (20N-30S)
+lon2d,lat2d = np.meshgrid(lon,lat)
+tropics_mask = np.all((lat2d>=-30,lat2d<=30),axis=0)
+
 #get areas
 areas = get_areas()
-
-# get region masks
-continents = get_continents(landmask)
-continents = continents[landmask].reshape(landmask.sum(),1)
 
 luh_files = sorted(glob.glob('/disk/scratch/local.2/jexbraya/LUH2/*ssp*'))
 for luh_file in luh_files:
@@ -38,6 +38,9 @@ for luh_file in luh_files:
 
     for yy, year in enumerate(years):
         predictors,landmask = get_predictors(y0=year,luh_file=luh_file)
+        # get region masks
+        continents = get_continents(landmask)
+        continents = continents[landmask].reshape(landmask.sum(),1)
 
         #transform the data
         X = pca.transform(predictors)
@@ -61,10 +64,15 @@ for luh_file in luh_files:
         agb_ssp.AGB_upper[yy].values[landmask] = rfbc_predict(rf_upp['rf1'],rf_upp['rf2'],X)
         agb_ssp.AGB_lower[yy].values[landmask] = rfbc_predict(rf_low['rf1'],rf_low['rf2'],X)
 
+        # clip to tropics
+        agb_ssp.AGB_mean[yy].values[~tropics_mask]  = np.nan
+        agb_ssp.AGB_upper[yy].values[~tropics_mask] = np.nan
+        agb_ssp.AGB_lower[yy].values[~tropics_mask] = np.nan
+
         #get time series
-        agb_ssp.ts_mean[yy] = (agb_ssp.AGB_mean[yy].values*areas)[landmask].sum()*1e-13
-        agb_ssp.ts_upper[yy] = (agb_ssp.AGB_upper[yy].values*areas)[landmask].sum()*1e-13
-        agb_ssp.ts_lower[yy] = (agb_ssp.AGB_lower[yy].values*areas)[landmask].sum()*1e-13
+        agb_ssp.ts_mean[yy] = (agb_ssp.AGB_mean[yy].values*areas)[landmask*tropics_mask].sum()*1e-13
+        agb_ssp.ts_upper[yy] = (agb_ssp.AGB_upper[yy].values*areas)[landmask*tropics_mask].sum()*1e-13
+        agb_ssp.ts_lower[yy] = (agb_ssp.AGB_lower[yy].values*areas)[landmask*tropics_mask].sum()*1e-13
 
     #save to a nc file
     encoding = {'AGB_mean':{'zlib':True,'complevel':1},
