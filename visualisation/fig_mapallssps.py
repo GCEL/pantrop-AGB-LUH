@@ -38,11 +38,10 @@ unc = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Uncertai
 #create 2d array to separate per continent
 lon2d,lat2d = np.meshgrid(med.x,med.y)
 
-mask_pantrop = np.ones(lon2d.shape,dtype='bool')
-mask_america = lon2d<-25.
-mask_africa  = (lon2d>-25.) & (lon2d<58)
-mask_asia    = lon2d>58.
-
+#mask_pantrop = np.ones(lon2d.shape,dtype='bool')
+mask_tropics = np.all((lat2d>=-30,lat2d<=30),axis=0)
+med[0].values[~mask_tropics]=np.nan
+unc[0].values[~mask_tropics]=np.nan
 
 #colorblind friendly figures
 cols = {'ssp126': np.array([230,159,0])/255.,
@@ -60,24 +59,26 @@ scenlong = {'ssp126': 'SSP1-2.6',
             'ssp585': 'SSP5-8.5'}
 
 #create an axes grid
-fig = plt.figure('all maps',figsize=(12,8));fig.clf()
+fig = plt.figure('all maps',figsize=(12,6));fig.clf()
 
 #create a figure using the axesgrid to make the colorbar fit on the axis
 projection = ccrs.PlateCarree()
 axes_class = (GeoAxes,dict(map_projection=projection))
 
-axgr = AxesGrid(fig,111,nrows_ncols=(3,2),axes_class=axes_class,label_mode='',cbar_mode='single',cbar_pad = 0.25,cbar_size="3%",axes_pad=.75)
+axgr = AxesGrid(fig,111,nrows_ncols=(3,2),axes_class=axes_class,label_mode='',
+                cbar_mode='single',cbar_pad = 0.25,cbar_size="3%",axes_pad=.75)
 
 
 for sc,scen in enumerate(['ssp126','ssp434','ssp245','ssp460','ssp370','ssp585']):
 
     ssp = xr.open_dataset('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/output/AGB_%s.nc' % scen)
     toplot = ssp.AGB_mean[-1].copy()
+    toplot.values[~mask_tropics]=np.nan
     toplot.values = (toplot.values-med[0].values)*.48
 
     toplot.plot.imshow(ax=axgr[sc],vmin=-50.,vmax=50.,extend='both',cbar_ax=axgr.cbar_axes[0],
                         interpolation='nearest',cbar_kwargs={'label':'Mg C ha$^{-1}$'},
-                        cmap='bwr_r',xlim = (-120,160),ylim=(-60,40),
+                        cmap='bwr_r',xlim = (-120,160),ylim=(-30,30),
                         yticks=np.arange(-60,41,20),xticks=np.arange(-120,161,40),
                         add_labels=False)
 
