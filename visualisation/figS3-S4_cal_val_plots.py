@@ -102,15 +102,22 @@ df_test =  pd.DataFrame({'obs':y_test*agb_to_C,'sim':rfbc_predict(rf1,rf2,X_test
 
 print('Cal-val\n---------\nNcal = %i; Nval = %i' % (y_train.size,y_test.size))
 
-figval = pl.figure('validation',figsize=(15,15));figval.clf()
+figcalval = pl.figure('validation',figsize=(15,15));figcalval.clf()
 titles = ['Calibration','Validation']
 for ss,df in enumerate([df_train,df_test]):
     ax=figval.add_subplot(1,2,ss+1)
     plot_OLS(ax,df['obs'],df['sim'],ss,'density')
     ax.set_title(titles[ss])
 
+figcalval.show()
+figcalval.savefig('../figures/manuscript/figS3_calval_scatter.png',bbox_inches='tight')
+
+figval = pl.figure('validation',figsize=(6,6));figval.clf()
+ax=figval.add_subplot(111)
+plot_OLS(ax,df_test['obs'],df_test['sim'],0,'density')
 figval.show()
-figval.savefig('../figures/manuscript/figS3_calval_scatter.png',bbox_inches='tight')
+figval.savefig('../figures/manuscript/figS3_val_scatter.png',bbox_inches='tight')
+
 
 # full model
 rf1,rf2=rfbc_fit(rf['rf1'],X,y)
