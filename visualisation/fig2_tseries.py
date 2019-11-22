@@ -18,7 +18,8 @@ ax = fig.add_subplot(111)
 #load agb with past land use
 pot = xr.open_dataset('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/output/AGB_hist.nc')
 
-ref = pot.ts_mean[(pot.time>=2000) & (pot.time<=2009)].mean()
+#ref = pot.ts_mean[(pot.time>=2000) & (pot.time<=2009)].mean()
+ref = pot.ts_mean[(pot.time==2015)].mean()
 toplot = (pot.ts_mean-ref)*.48
 toplot.plot(ax=ax,color='k',ls='-',lw=2,label='Historical')
 
