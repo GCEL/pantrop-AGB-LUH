@@ -16,23 +16,25 @@ import pandas as pd
 
 #get areas and landmask to calculate continental numbers
 areas = get_areas()
-_,landmask = get_predictors()
+#_,landmask = get_predictors()
 
 #load agb
-med = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Map_0.25d.tif')
-med.values[med.values == med.nodatavals[0]] = np.nan
-med[0].values[~landmask] = np.nan
+pot = xr.open_dataset('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/output/AGB_hist.nc')
+#med = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Map_0.25d.tif')
+#med.values[med.values == med.nodatavals[0]] = np.nan
+#med[0].values[~landmask] = np.nan
 
 #load uncertainty to write some stats
-unc = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Uncertainty_0.25d.tif')
+#unc = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Uncertainty_0.25d.tif')
 
 #create 2d array to separate per continent
-lon2d,lat2d = np.meshgrid(med.x,med.y)
+lon2d,lat2d = np.meshgrid(pot.lon,pot.lat)
 
-mask_pantrop = np.ones(lon2d.shape,dtype='bool')
-mask_america = lon2d<-25.
-mask_africa  = (lon2d>-25.) & (lon2d<58)
-mask_asia    = lon2d>58.
+mask_tropics = np.all((lat2d>=-30,lat2d<=30),axis=0)
+mask_tropics[403:,1100:]=False # mask out Australia
+mask_america = (lon2d<-25.) & mask_tropics
+mask_africa  = (lon2d>-25.) & (lon2d<58) & mask_tropics
+mask_asia    = (lon2d>58.) & mask_tropics
 
 
 #colorblind friendly figures
@@ -58,18 +60,21 @@ titles = ['a) Pantropical','b) Americas','c) Africa','d) Asia']
 #create empty dataframe to store results
 results = pd.DataFrame(np.zeros([6,4]),columns = ['pantrop','am','af','as'])
 #iterate regions
-for mm, mask in enumerate([mask_pantrop,mask_america,mask_africa,mask_asia]):
+for mm, mask in enumerate([mask_tropics,mask_america,mask_africa,mask_asia]):#enumerate([mask_pantrop,mask_america,mask_africa,mask_asia]):
     #get current agb in the region
     ticks = []
     ax = fig.add_subplot(2,2,mm+1)
     print(titles[mm])
     hist = {}
     lvls = ['mean','lower','upper']
+    """
     for aa, agb in enumerate([med,med-unc,med+unc]):
         lvl = lvls[aa]
         agb[0].values[agb[0]<0] = 0
         hist[lvl] = ((agb[0]*areas*mask).sum()*1e-13*.48)
-
+    """
+    for lvl in lvls:
+        hist[lvl] = np.nansum(pot['AGB_%s' % lvl].values[-1]*areas*mask)*1e-13*.48
     for sc,scen in enumerate(['ssp126','ssp434','ssp245','ssp460','ssp370','ssp585']):
         ticks.append(scenlong[scen])
         ssp = xr.open_dataset('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/output/AGB_%s.nc' % scen)
