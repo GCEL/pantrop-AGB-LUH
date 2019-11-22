@@ -21,7 +21,7 @@ rf_grid = np.load('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/saved_algorith
 # Construct best-fitting random forest model
 idx = np.argmin(rf_grid['mean_test_score'])
 rf_best = RandomForestRegressor(bootstrap=True,
-            max_depth= None,
+            max_depth= rf_grid['params'][idx]['max_depth'],#None,
             max_features=rf_grid['params'][idx]['max_features'],
             min_samples_leaf=rf_grid['params'][idx]['min_samples_leaf'],
             n_estimators=rf_grid['params'][idx]['n_estimators'],
