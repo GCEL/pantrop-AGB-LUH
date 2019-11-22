@@ -32,16 +32,28 @@ unc = xr.open_rasterio('/disk/scratch/local.2/jexbraya/AGB/Avitable_AGB_Uncertai
 #load agb with past land use
 pot = xr.open_dataset('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/output/AGB_hist.nc')
 
+#create 2d array to separate per continent
+lon2d,lat2d = np.meshgrid(med.x,med.y)
+
+#mask_pantrop = np.ones(lon2d.shape,dtype='bool')
+mask_tropics = np.all((lat2d>=-30,lat2d<=30),axis=0)
+med[0].values[~mask_tropics]=np.nan
+unc[0].values[~mask_tropics]=np.nan
+lvls = ['AGB_mean','AGB_lower','AGB_upper']
+for ii in lvls:
+    for yy in range(0,pot[ii].values.shape[0]):
+        pot[ii].values[yy][~mask_tropics]=np.nan
+
 #print some statistics
 lvls = ['mean','lower','upper']
 for aa, agb in enumerate([med,med-unc,med+unc]):
     lvl = lvls[aa]
     agb.values[agb.values<0] = 0
-    agb_tot = (agb[0]*areas).sum()*1e-13*.48
-    print('AGB',lvl,np.round(agb_tot.values,1),' Pg C')
+    agb_tot = np.nansum(agb[0]*areas)*1e-13*.48
+    print('AGB',lvl,np.round(agb_tot,2),' Pg C')
 
-    pot_tot = (pot['AGB_' + lvl][:10].mean(axis=0)*areas).sum()*1e-13*.48
-    print('Pot',lvl,np.round(pot_tot.values,1),' Pg C')
+    pot_tot = np.nansum(pot['AGB_' + lvl][:10].mean(axis=0)*areas)*1e-13*.48
+    print('Pot',lvl,np.round(pot_tot,2),' Pg C')
 
 ####
 #### Plotting the map
@@ -56,7 +68,7 @@ projection = ccrs.PlateCarree()
 axes_class = (GeoAxes,dict(map_projection=projection))
 
 #create figure
-fig = plt.figure('fig_3maps',figsize=(10,10))
+fig = plt.figure('fig_3maps',figsize=(10,8))
 fig.clf()
 
 #create axes grid
@@ -65,12 +77,12 @@ axgr = AxesGrid(fig,111,nrows_ncols=(3,1),axes_class=axes_class,label_mode='',cb
 #plot
 vmaxes = [200,200,50]
 cmaps = ['viridis','viridis','YlOrRd']
-titles = ['a) AGB$_{2000s}$','b) AGB$_{1850s}$','c) AGB$_{1850s}$ - AGB$_{2000s}$']
+titles = ['a) AGB$_{2015}$','b) AGB$_{1850}$','c) AGB$_{1850}$ - AGB$_{2015}$']
 for mm,map2plot in enumerate([med[0],pot.AGB_mean[:10].mean(axis=0),dAGB]):
     (map2plot*.48).plot.imshow(ax=axgr[mm],cbar_ax=axgr.cbar_axes[mm],vmin=0,vmax=vmaxes[mm],extend='max',
                         interpolation='nearest',cbar_kwargs={'label':'Mg C ha$^{-1}$'},
                         cmap=cmaps[mm],xticks=np.arange(-120,161,40),yticks=np.arange(-60,41,20),
-                        add_labels=False,ylim=(-60,40),xlim=(-120,160))
+                        add_labels=False,ylim=(-30,30),xlim=(-120,160))
 
     #add grey mask for land regions outside the study, and black for the oceans
     axgr[mm].add_feature(cfeat.LAND,zorder=-1,facecolor='silver')
