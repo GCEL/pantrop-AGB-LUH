@@ -64,4 +64,34 @@ for jj, ax in enumerate(axes[-1]):
 
 fig.tight_layout()
 fig.show()
-fig.savefig('../figures/manuscript/figS2_optimisation_summary.png')
+fig.savefig('../figures/manuscript/figS2_optimisation_summary_cal_and_val_metrics.png')
+
+
+# final plot for supplement focusses on validation tests
+col_vars = [ 'max_depth', 'max_features', 'min_samples_leaf', 'n_estimators']
+col_labels = [ 'max depth', 'max features', 'min samples\nleaf', 'N estimators']
+row_vars = ['mean_test_score','grad_test']
+row_labels = ['validation\nRMSE\nMg C ha$^{-1}$', 'validation\ngradient']
+
+fig,axes = plt.subplots(nrows=2,ncols=4,figsize=[8,5], sharex='col',sharey='row')
+for ii,axes_row in enumerate(axes):
+    for jj, ax in enumerate(axes_row):
+        mask = cv_res['mean_test_score']<=15
+        ax.scatter(cv_res[col_vars[jj]][mask],cv_res[row_vars[ii]][mask],c='black',
+                    marker='.',s=4)
+        if jj==0:
+            ax.set_ylabel(row_labels[ii],fontsize=8)
+            for tick in ax.yaxis.get_major_ticks():
+                tick.label.set_fontsize(8)
+for jj, ax in enumerate(axes[-1]):
+    if jj==0:
+        ax.set_xticks([0,250,500,650])
+        ax.set_xticklabels(['0','250','500','None'])
+        ax.set_xlim(right=700)
+    for tick in ax.xaxis.get_major_ticks():
+        tick.label.set_fontsize(8)
+    ax.set_xlabel(col_labels[jj],fontsize=8)
+
+fig.tight_layout()
+fig.show()
+fig.savefig('../figures/manuscript/figS2_optimisation_summary_val_metrics.png')
