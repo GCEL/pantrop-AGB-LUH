@@ -72,10 +72,11 @@ fig = plt.figure('fig_3maps',figsize=(10,8))
 fig.clf()
 
 #create axes grid
-axgr = AxesGrid(fig,111,nrows_ncols=(3,1),axes_class=axes_class,label_mode='',cbar_mode='each',cbar_pad = 0.25,cbar_size="3%",axes_pad=.5)
+axgr = AxesGrid(fig,111,nrows_ncols=(3,1),axes_class=axes_class,label_mode='',
+                cbar_mode='each',cbar_pad = 0.25,cbar_size="3%",axes_pad=.5)
 
 #plot
-vmaxes = [200,200,50]
+vmaxes = [200,200,100]
 cmaps = ['viridis','viridis','YlOrRd']
 titles = ['a) AGB$_{2015}$','b) AGB$_{1850}$','c) AGB$_{1850}$ - AGB$_{2015}$']
 for mm,map2plot in enumerate([med[0],pot.AGB_mean[:10].mean(axis=0),dAGB]):
@@ -85,8 +86,8 @@ for mm,map2plot in enumerate([med[0],pot.AGB_mean[:10].mean(axis=0),dAGB]):
                         add_labels=False,ylim=(-30,30),xlim=(-120,160))
 
     #add grey mask for land regions outside the study, and black for the oceans
-    axgr[mm].add_feature(cfeat.LAND,zorder=-1,facecolor='silver')
-    axgr[mm].add_feature(cfeat.OCEAN,zorder=-1,facecolor='gray')
+    axgr[mm].add_feature(cfeat.LAND,zorder=-1,facecolor='0.85')
+    axgr[mm].add_feature(cfeat.OCEAN,zorder=-1,facecolor='0.8')
 
     #set labels
     axgr[mm].yaxis.set_major_formatter(LatitudeFormatter())
