@@ -35,9 +35,11 @@ pot = xr.open_dataset('/disk/scratch/local.2/dmilodow/pantrop_AGB_LUH/output/AGB
 # get tropics mask (30N-30S)
 lon2d,lat2d = np.meshgrid(pot.lon,pot.lat)
 tropics_mask = np.all((lat2d>=-30,lat2d<=30),axis=0)
-mask_tropics[403:,1100:]=False # mask out Australia
+"""
+tropics_mask[403:,1100:]=False # mask out Australia
 med[0].values[~tropics_mask]=np.nan
 unc[0].values[~tropics_mask]=np.nan
+"""
 lvls = ['AGB_mean','AGB_lower','AGB_upper']
 for lvl in lvls:
     for yy in range(0,pot[lvl].values.shape[0]):
@@ -74,7 +76,7 @@ axgr = AxesGrid(fig,111,nrows_ncols=(1,1),axes_class=axes_class,label_mode='',
                 cbar_mode='single',cbar_pad = 0.25,cbar_size="3%",axes_pad=.5)
 
 #plot
-(dAGB*.48).plot.imshow(ax=axgr[0],cbar_ax=axgr.cbar_axes[0],vmin=0,vmax=50,extend='max',
+(dAGB*.48).plot.imshow(ax=axgr[0],cbar_ax=axgr.cbar_axes[0],vmin=0,vmax=100,extend='max',
                     interpolation='nearest',cbar_kwargs={'label':'Mg C ha$^{-1}$'},
                     cmap='YlOrRd',xticks=np.arange(-120,161,40),yticks=np.arange(-60,41,20),
                     add_labels=False,ylim=(-30,30),xlim=(-120,160))
