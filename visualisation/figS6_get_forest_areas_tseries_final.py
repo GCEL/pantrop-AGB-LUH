@@ -157,7 +157,7 @@ for yr,yval in enumerate(years):
     hist_forest = hist_states['primf'].values[np.arange(850,2016)==yval]+hist_states['secdf'].values[np.arange(850,2016)==yval]
     hist_forest=hist_forest[0][mask_tropics]
     hist_agb = pot['AGB_mean'].values[pot.time==yval][0][mask_tropics]
-    mask = np.isfinite(hist_agb)
+    mask = np.all((np.isfinite(hist_forest),np.isfinite(hist_agb)),axis=0)
     print(stats.linregress(hist_agb[mask],hist_forest[mask]))
 
 hist_states.close()
