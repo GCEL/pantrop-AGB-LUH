@@ -50,7 +50,7 @@ for yy, year in enumerate(years):
         attrs={'_FillValue':-9999.,'units':'Mg ha-1'}
         data_vars = {}
         for lvl in ['mean','upper','lower']:
-            data_vars['AGB_'+lvl] = (['time','lat','lon'],np.zeros([years.size,lat.size,lon.size])-9999.,attrs)
+            data_vars['AGB_'+lvl] = (['time','lat','lon'],np.zeros([years.size,lat.size,lon.size])*np.nan,attrs)
             data_vars['ts_' + lvl] = (['time'],np.zeros(years.size),{'units': 'Pg','long_name': 'total AGB'})
 
         agb_hist = xr.Dataset(data_vars=data_vars,coords=coords)
@@ -63,6 +63,12 @@ for yy, year in enumerate(years):
     agb_hist.AGB_mean[yy].values[~tropics_mask]  = np.nan
     agb_hist.AGB_upper[yy].values[~tropics_mask] = np.nan
     agb_hist.AGB_lower[yy].values[~tropics_mask] = np.nan
+
+    # set negative estimates to zero
+    agb_hist.AGB_mean[yy].values[agb_hist.AGB_mean[yy].values<0]  = 0
+    agb_hist.AGB_upper[yy].values[agb_hist.AGB_upper[yy].values<0] = 0
+    agb_hist.AGB_lower[yy].values[agb_hist.AGB_lower[yy].values<0] = 0
+
 
     #get time series
     agb_hist.ts_mean[yy] = (agb_hist.AGB_mean[yy].values*areas)[landmask*tropics_mask].sum()*1e-13
